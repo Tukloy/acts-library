@@ -21,6 +21,11 @@ export const getActivity = async (req, res, next) => {
 
 export const createActivity = async (req, res, next) => {
     const {account_id, activity} = req.body
+    if(!account_id || !activity) {
+        const error = new Error(`Some fields are missing`);
+        error.status = 404;
+        return next(error)
+    }
     try {
         await db.query('INSERT INTO activities (account_id, activity) VALUES (?,?)', [account_id, activity])
         res.status(201).json({msg: 'Activity Created'})

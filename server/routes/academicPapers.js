@@ -1,5 +1,5 @@
 import express from 'express';
-import { getAcademicPapers, getAcademicPaper, createAcademicPaper, updateAcademicPaper, deleteAcademicPaper } from '../controllers/academicPaperController.js';
+import { getAcademicPapers, getAcademicPaper, createAcademicPaper, updateAcademicPaper, deleteAcademicPaper } from '../controllers/academicPapersController.js';
 import checkId from '../middleware/checkIdExist.js'
 
 const router = express.Router();

@@ -3,6 +3,8 @@ import 'dotenv/config.js'
 import accounts from './routes/accounts.js'
 import academicPapers from './routes/academicPapers.js'
 import activities from './routes/activities.js'
+import books from './routes/books.js'
+import transactions from './routes/transactions.js'
 import error from './middleware/error.js'
 import notfound from './middleware/notfound.js'
 
@@ -18,6 +20,8 @@ app.use(express.urlencoded({extended: true}))
 app.use('/api/accounts', accounts)
 app.use('/api/academic-papers', academicPapers)
 app.use('/api/activities', activities)
+app.use('/api/books', books)
+app.use('/api/transactions', transactions)
 
 
 // Error Handling
