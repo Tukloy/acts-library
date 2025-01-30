@@ -60,7 +60,9 @@ export const deleteAccount = async (req, res, next) => {
     try {
         await db.query('DELETE FROM accounts WHERE id =?', [id])
         res.status(200).json({ msg: 'Account deleted successfully'})
-    } catch (error) {
-        console.error('Error cannot delete account', error)
+    } catch (e) {
+        const error = new Error(`Unable to fetch accounts`);
+        error.status = 404;
+        return next(error)
     }
 }

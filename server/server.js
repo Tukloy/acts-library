@@ -1,6 +1,7 @@
 import express from 'express'
 import 'dotenv/config.js'
 import accounts from './routes/accounts.js'
+import academicPapers from './routes/academicPapers.js'
 import error from './middleware/error.js'
 import notfound from './middleware/notfound.js'
 
@@ -14,6 +15,7 @@ app.use(express.urlencoded({extended: true}))
 
 // Routes
 app.use('/api/accounts', accounts)
+app.use('/api/academic-papers', academicPapers)
 
 
 // Error Handling
