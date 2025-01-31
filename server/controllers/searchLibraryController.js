@@ -14,9 +14,9 @@ const searchLibrary = async (req, res, next) => {
              return res.status(400).json({ error: 'Invalid search key' });
             }
              const [result] = await db.query(`
-                SELECT 'academic_papers' AS source, acadp_id, author_name, title_name, status, type FROM academic_papers WHERE ${key} LIKE ? 
+                SELECT 'academic_papers' AS source, acadp_id AS item_id, author_name, title_name, status, type FROM academic_papers WHERE ${key} LIKE ? 
                     UNION 
-                SELECT 'books' AS source, book_id, author_name, title_name, status, type FROM books WHERE ${key} LIKE ? `, [`%${value}%`, `%${value}%`]);
+                SELECT 'books' AS source, book_id AS item_id, author_name, title_name, status, type FROM books WHERE ${key} LIKE ? `, [`%${value}%`, `%${value}%`]);
                 res.status(200).json(result);
         } catch (e) {
             const error = new Error(`Unable to fetch search results`);
