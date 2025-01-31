@@ -1,6 +1,6 @@
 import db from '../config/database.js'
 
-// Route /api/search/libarary?key=''&value=''
+// Route /api/search/library?key=''&value=''
 // Description: this is for searching academic_papers and books
 
 const searchLibrary = async (req, res, next) => {

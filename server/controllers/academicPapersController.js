@@ -28,14 +28,14 @@ export const getAcademicPaper = async (req, res, next) => {
 }
 
 export const createAcademicPaper = async (req, res, next) => {
-    const { author_name, title_name, status, academic_year, course, type} = req.body
-    if (!author_name ||!title_name ||!status ||!academic_year ||!course ||!type) {
-        const error = new Error('All fields are required');
-        error.status = 400;
-        return next(error);
-    }
+    const { acadp_id, author_name, title_name, status, academic_year, course, type} = req.body
+    // if (!author_name ||!title_name ||!status ||!academic_year ||!course ||!type) {
+    //     const error = new Error('All fields are required');
+    //     error.status = 400;
+    //     return next(error);
+    // }
     try {
-        await db.query('INSERT INTO academic_papers (author_name, title_name, status, academic_year, course, type) VALUES (?, ?, ?, ?, ? ,?)', [author_name, title_name, status, academic_year, course, type])
+        await db.query('INSERT INTO academic_papers (acadp_id, author_name, title_name, status, academic_year, course, type) VALUES (?, ?, ?, ?, ?, ? ,?)', [acadp_id, author_name, title_name, status, academic_year, course, type])
         res.status(201).json({msg: 'Academic Paper Created'})
     } catch (error) {
         console.error('Error Creating Academic Paper', error)
