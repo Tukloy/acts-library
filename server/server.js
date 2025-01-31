@@ -5,6 +5,7 @@ import academicPapers from './routes/academicPapers.js'
 import activities from './routes/activities.js'
 import books from './routes/books.js'
 import transactions from './routes/transactions.js'
+import search from './routes/search.js'
 import error from './middleware/error.js'
 import notfound from './middleware/notfound.js'
 
@@ -22,6 +23,7 @@ app.use('/api/academic-papers', academicPapers)
 app.use('/api/activities', activities)
 app.use('/api/books', books)
 app.use('/api/transactions', transactions)
+app.use('/api/search', search)
 
 
 // Error Handling
