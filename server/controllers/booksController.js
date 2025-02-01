@@ -1,4 +1,5 @@
 import db from '../config/database.js'
+import { validationResult } from 'express-validator'
 
 export const getBooks = async (req, res, next) => {
     try {
@@ -25,12 +26,12 @@ export const getBook = async (req, res, next) => {
 
 export const createBook = async (req, res, next) => {
    const { book_id, author_name, title_name, type, status } = req.body
+   const results = validationResult(req)
 
-   if(!book_id || !author_name || !title_name || !type || !status) {
-    const error = new Error(`Some fields are missing`);
-    error.status = 404;
-    return next(error)
+   if (!results.isEmpty()) {
+     return res.status(400).json({ errors: results.errors.map(error => error.msg) });
    }
+
    try {
      await db.query('INSERT INTO books (book_id, author_name, title_name, type, status) VALUES (?, ?, ?, ?, ?)', [book_id, author_name, title_name, type, status]);
      res.status(201).json({ message: 'Book created successfully' });
@@ -44,11 +45,12 @@ export const createBook = async (req, res, next) => {
 export const updateBook = async (req, res, next) => {
     const id = parseInt(req.params.id);
     const { book_id, author_name, title_name, type, status } = req.body
-    if(!book_id || !author_name || !title_name || !type || !status) {
-        const error = new Error(`Some fields are missing`);
-        error.status = 404;
-        return next(error)
-       }
+    const results = validationResult(req)
+
+    if (!results.isEmpty()) {
+        return res.status(400).json({ errors: results.errors.map(error => error.msg) });
+      }
+
     try {
         await db.query('UPDATE books SET book_id = ?, author_name = ?, title_name = ?, type = ?, status = ? WHERE id = ?', [book_id, author_name, title_name, type, status, id])
         res.status(200).json({ message: 'Book updated successfully' });
