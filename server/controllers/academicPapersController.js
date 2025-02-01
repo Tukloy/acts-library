@@ -1,4 +1,5 @@
 import db from '../config/database.js';
+import { validationResult } from 'express-validator';
 
 export const getAcademicPapers = async (req, res, next) => {
     try {
@@ -29,28 +30,28 @@ export const getAcademicPaper = async (req, res, next) => {
 
 export const createAcademicPaper = async (req, res, next) => {
     const { acadp_id, author_name, title_name, status, academic_year, course, type} = req.body
-    // if (!author_name ||!title_name ||!status ||!academic_year ||!course ||!type) {
-    //     const error = new Error('All fields are required');
-    //     error.status = 400;
-    //     return next(error);
-    // }
+    const results = validationResult(req)
+    if (!results.isEmpty()) {
+        return res.status(400).json({ errors: results.errors.map(error => error.msg) });
+    }
     try {
         await db.query('INSERT INTO academic_papers (acadp_id, author_name, title_name, status, academic_year, course, type) VALUES (?, ?, ?, ?, ?, ? ,?)', [acadp_id, author_name, title_name, status, academic_year, course, type])
         res.status(201).json({msg: 'Academic Paper Created'})
     } catch (error) {
         console.error('Error Creating Academic Paper', error)
+        res.status(400).json({msg: `check if id of ${acadp_id} already exists`})
     }
 }
 
 export const updateAcademicPaper = async (req, res, next) => {
     const id = parseInt(req.params.id)
-    if (isNaN(id)) return res.sendStatus(400)
     const { author_name, title_name, status, academic_year, course, type} = req.body
-    if (!author_name ||!title_name ||!status ||!academic_year ||!course ||!type) {
-        const error = new Error('All fields are required');
-        error.status = 400;
-        return next(error);
-    }
+    if (isNaN(id)) return res.sendStatus(400)
+
+    const results = validationResult(req)
+    if (!results.isEmpty()) {
+            return res.status(400).json({ errors: results.errors.map(error => error.msg) });
+        }
     try {
         await db.query('UPDATE academic_papers SET author_name = ?, title_name = ?, status = ?, academic_year = ?, course = ? , type = ? WHERE id = ?', [author_name, title_name, status, academic_year, course, type, id])
         res.status(200).json({msg: `Academic Paper with id of ${id} is Updated`})

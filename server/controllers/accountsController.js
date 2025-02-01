@@ -1,4 +1,5 @@
 import db from '../config/database.js';
+import { validationResult } from 'express-validator'
 
 export const getAccounts = async (req, res, next) => {
     try {
@@ -29,23 +30,30 @@ export const getAccount = async (req, res, next) => {
 
 export const createAccount = async (req, res, next) => {
     const {account_id, name, password, course, year_and_section, email, account_type} = req.body
+    const results = validationResult(req)
+    if (!results.isEmpty()) {
+        return res.status(400).json({ errors: results.errors.map(error => error.msg) });
+    }
     try {
-        if (!name || !password && !course || !year_and_section || !email || !account_type) {
-            const error = new Error(`Some fields are missing`);
-            error.status = 404;
-            return next(error)
-        }
       await db.query('INSERT INTO accounts (account_id, name, password, course, year_and_section, email, account_type) VALUES (?, ?, ?, ?, ?, ?, ?)', [account_id, name, password, course, year_and_section, email, account_type])
        res.status(201).json({msg: 'Account Created'})
     } catch (e) {
         console.log('Error Creating a new account', e);
+        res.status(400).json({ msg: `Account id ${account_id} already exists` })
     }
 }
 
 export const updateAccount = async (req, res, next) => {
     const id = parseInt(req.params.id)
     const { account_id, name, password, course, year_and_section, email, account_type} = req.body
+
     if(!id) return res.status(404).json({ msg: 'Invalid id'})
+
+    const results = validationResult(req)
+    if (!results.isEmpty()) {
+        return res.status(400).json({ errors: results.errors.map(error => error.msg) });
+    }
+    
     try {
         await db.query('UPDATE accounts SET account_id = ?, name = ?, password = ?, course = ?, year_and_section = ?, email = ?, account_type = ? WHERE id = ?', [account_id, name, password, course, year_and_section, email, account_type, id])
         res.status(200).json({ msg: 'Account updated successfully'})
