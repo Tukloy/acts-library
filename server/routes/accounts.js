@@ -9,7 +9,7 @@ const router = express.Router()
 router.get('/',  getAccounts)
 router.get('/:id', checkId('accounts'), getAccount)
 router.post('/', checkSchema(createAccountSchema), createAccount)
-router.put('/:id',checkSchema(updateAccountSchema), checkId('accounts'), updateAccount)
+router.put('/:id', checkSchema(updateAccountSchema), checkId('accounts'), updateAccount)
 router.delete('/:id', checkId('accounts'), deleteAccount)
 
 export default router

@@ -1,4 +1,5 @@
 import db from '../config/database.js'
+import { validationResult } from 'express-validator'
 
 export const getActivities = async (req, res, next) => {
     try {
@@ -21,22 +22,28 @@ export const getActivity = async (req, res, next) => {
 
 export const createActivity = async (req, res, next) => {
     const {account_id, activity} = req.body
-    if(!account_id || !activity) {
-        const error = new Error(`Some fields are missing`);
-        error.status = 404;
-        return next(error)
+    const results = validationResult(req)
+    if(!results.isEmpty()) {
+        return res.status(400).json({errors: results.errors.map(error => error.msg)})
     }
     try {
         await db.query('INSERT INTO activities (account_id, activity) VALUES (?,?)', [account_id, activity])
         res.status(201).json({msg: 'Activity Created'})
     } catch (error) {
         console.error('Error creating activity', error)
+        res.status(500).json({ msg: `Account ${account_id} not found` })
     }
 }
 
 export const updateActivity = async (req, res, next) => {
     const id = parseInt(req.params.id)
     const {account_id, activity} = req.body
+
+    const results = validationResult(req)
+    if(!results.isEmpty()) {
+        return res.status(400).json({errors: results.errors.map(error => error.msg)})
+    }
+    
     try {
          db.query('UPDATE activities SET account_id = ?, activity = ? WHERE id = ?', [account_id, activity, id])
          res.status(200).json({msg: 'Activity updated'})
