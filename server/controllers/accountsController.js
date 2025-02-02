@@ -17,7 +17,7 @@ export const getAccount = async (req, res, next) => {
     const id = parseInt(req.params.id)
     try {
         if(isNaN(id)) return res.sendStatus(400)
-        const [account] = await db.query('SELECT * FROM accounts WHERE student_number = ?', id)
+        const [account] = await db.query('SELECT * FROM accounts WHERE id = ?', id)
         if (!account.length) {
             const error = new Error(`Account with id ${id} not found`);
             error.status = 404;
