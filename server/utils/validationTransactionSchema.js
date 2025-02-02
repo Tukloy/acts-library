@@ -8,7 +8,7 @@ export const createTransactionSchema = {
                 min: 5,
             },
             errorMessage: 'Account ID should be 5 characters long'
-        },
+        },  
         isString: {
             errorMessage: 'Account ID should be a string'
         }

@@ -1,5 +1,6 @@
 import db from '../config/database.js';
 import { validationResult } from 'express-validator'
+import bcrypt from 'bcryptjs'
 
 export const getAccounts = async (req, res, next) => {
     try {
@@ -34,8 +35,9 @@ export const createAccount = async (req, res, next) => {
     if (!results.isEmpty()) {
         return res.status(400).json({ errors: results.errors.map(error => error.msg) });
     }
+    const hashedPassword = await bcrypt.hash(password, 10);
     try {
-      await db.query('INSERT INTO accounts (account_id, name, password, course, year_and_section, email, account_type) VALUES (?, ?, ?, ?, ?, ?, ?)', [account_id, name, password, course, year_and_section, email, account_type])
+      await db.query('INSERT INTO accounts (account_id, name, password, course, year_and_section, email, account_type) VALUES (?, ?, ?, ?, ?, ?, ?)', [account_id, name, hashedPassword, course, year_and_section, email, account_type])
        res.status(201).json({msg: 'Account Created'})
     } catch (e) {
         console.log('Error Creating a new account', e);
@@ -53,9 +55,9 @@ export const updateAccount = async (req, res, next) => {
     if (!results.isEmpty()) {
         return res.status(400).json({ errors: results.errors.map(error => error.msg) });
     }
-    
+    const hashedPassword = await bcrypt.hash(password, 10);
     try {
-        await db.query('UPDATE accounts SET account_id = ?, name = ?, password = ?, course = ?, year_and_section = ?, email = ?, account_type = ? WHERE id = ?', [account_id, name, password, course, year_and_section, email, account_type, id])
+        await db.query('UPDATE accounts SET account_id = ?, name = ?, password = ?, course = ?, year_and_section = ?, email = ?, account_type = ? WHERE id = ?', [account_id, name, hashedPassword, course, year_and_section, email, account_type, id])
         res.status(200).json({ msg: 'Account updated successfully'})
     } catch (error) {
         console.error('Error cannot update account', error)
