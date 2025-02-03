@@ -1,0 +1,14 @@
+@import "tailwindcss";
+
+.btn-primary {
+    background: linear-gradient(to bottom right, #166534, #bef264);
+    color: white;
+    padding: 10px 20px;
+    border-radius: 8px;
+    transition: background 0.3s ease, transform 0.2s ease;
+}
+
+.btn-primary:hover {
+    background: linear-gradient(to bottom right, #14532d, #a3e635);
+    transform: scale(1.05);
+}

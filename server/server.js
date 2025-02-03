@@ -57,6 +57,10 @@ app.post("/api/login", (req, res, next) => {
   })(req, res, next);
 });
 
+app.get("/api/me", ensureAuthenticated, (req, res) => {
+  res.json({ user: req.user }); // You can return user info here
+});
+
 app.get("/api/logout", (req, res) => {
   req.logout(() => {
     res.status(200).json({ message: "Logged out successfully" });
