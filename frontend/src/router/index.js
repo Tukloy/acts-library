@@ -1,6 +1,8 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import LoginView from '@/views/LoginView.vue';
-import DashboardView from '@/views/DashboardView.vue';
+import AdminView from '@/views/AdminView.vue';
+import NotFoundView from '@/views/NotfoundView.vue';
+import Dashboard from '@/components/Dashboard.vue';
 import axios from 'axios';
 
 const router = createRouter({
@@ -12,10 +14,21 @@ const router = createRouter({
       component: LoginView,
     },
     {
-      path: '/dashboard',
-      name: 'dashboard',
-      component: DashboardView,
+      path: '/admin',
+      component: AdminView,
       meta: { requiresAuth: true },
+      children: [
+        {
+          path: '/dashboard', // Default view when visiting /admin
+          name: 'dashboard',
+          component: Dashboard,
+        },
+        {
+          path: '/:catchAll(.*)',
+          name: "not-found",
+          component: NotFoundView,
+        }
+      ],
     },
   ],
 });
