@@ -2,6 +2,7 @@
 import { reactive, ref } from 'vue';
 import axios from 'axios';
 import { useRouter } from 'vue-router';
+import { useToast } from 'vue-toastification';
 defineProps(['backgroundImage', 'logofill'])
 
 // Define the data properties using `ref`
@@ -12,6 +13,7 @@ const state = reactive({
 const errorMessage = ref('');
 
 const router = useRouter();
+const toast = useToast();
 
 // Login method
 const login = async () => {
@@ -20,6 +22,7 @@ const login = async () => {
             account_id: state.username,
             password: state.password
         });
+        toast(`Welcome back ${response.data.name}`)
         console.log(response.data)
         router.push('/dashboard');
     } catch (error) {
