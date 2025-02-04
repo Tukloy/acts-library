@@ -3,7 +3,7 @@ import { ref, defineProps, defineEmits, onMounted, onUnmounted } from 'vue'
 import { RouterLink } from 'vue-router'
 
 defineProps(['username'])
-const emit = defineEmits(['emit-logout'])
+const emit = defineEmits(['emit-logout', 'emit-close-sidebar'])
 
 const toggleSetting = ref(false)
 
@@ -24,7 +24,7 @@ onUnmounted(() => {
 
 <template>
     <div class="shadow-md flex items-center justify-between px-4 py-4">
-        <i class="pi pi-bars"></i>
+        <i @click="emit('emit-close-sidebar')" class="pi pi-bars cursor-pointer hover:text-green-800"></i>
         <div class="flex items-center gap-x-2 relative">
             <div v-show="toggleSetting"
                 class="dropdown-menu absolute top-10 right-0 w-48 shadow-lg bg-white border border-gray-100 rounded-md p-2">

@@ -1,6 +1,6 @@
 <script setup>
 import axios from 'axios'
-import { reactive, onMounted } from 'vue'
+import { reactive, onMounted, ref } from 'vue'
 import { useRouter, RouterView } from 'vue-router'
 import Navbar from '@/components/Navbar.vue'
 import Sidebar from '@/components/Sidebar.vue'
@@ -8,6 +8,7 @@ defineProps(['backgroundImage', 'logo'])
 
 const router = useRouter()
 
+const toggleSidebar = ref(true)
 const state = reactive({
     user: '',
     isLoading: false
@@ -48,9 +49,10 @@ onMounted(() => {
         <div v-if="state.isLoading" class="absolute inset-0 bg-white/90 flex justify-center items-center">
             <i class="pi pi-spinner animate-spin text-6xl text-green-800"></i>
         </div>
-        <Sidebar :logo="logo" @emit-logout="logout" />
+        <Sidebar :logo="logo" @emit-logout="logout" :toggleSidebar="toggleSidebar" />
         <div class="w-full">
-            <Navbar :username="state.user.name" @emit-logout="logout" />
+            <Navbar :username="state.user.name" @emit-logout="logout"
+                @emit-close-sidebar="toggleSidebar = !toggleSidebar" />
             <div class="container-xl mx-auto">
                 <RouterView />
             </div>
