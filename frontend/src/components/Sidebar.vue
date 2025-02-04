@@ -16,9 +16,10 @@ const emit = defineEmits(['emit-logout']);
                     <p class="text-[8px]">LIBRARY MANAGEMENT SYSTEM</p>
                 </div>
             </div>
-            <div class="h-full border border-2 shadow-sm border-gray-200 py-4 pl-2 flex flex-col justify-between">
+            <div
+                class="h-full border border-2 shadow-sm border-gray-200 py-4 pl-2 flex flex-col justify-between text-gray-500">
                 <div class="flex flex-col gap-y-2">
-                    <RouterLink to="/dashboard" activeClass="border-r-4 border-green-800 text-green-800 bg-gray-200"
+                    <RouterLink to="/dashboard" activeClass="border-r-4 border-green-600 text-green-800 bg-gray-200"
                         class="flex items-center hover:bg-gray-100 py-2 pl-2 cursor-pointer">
                         <i class="pi pi-box mr-4"></i>
                         <p class="text-sm font-semibold">DASHBOARD</p>

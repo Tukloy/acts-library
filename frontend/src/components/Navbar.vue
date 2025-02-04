@@ -23,7 +23,7 @@ onUnmounted(() => {
 </script>
 
 <template>
-    <div class="shadow-md flex items-center justify-between px-4 py-4">
+    <div class="shadow-md flex items-center justify-between px-4 py-4 relative z-10">
         <i @click="emit('emit-close-sidebar')" class="pi pi-bars cursor-pointer hover:text-green-800"></i>
         <div class="flex items-center gap-x-2 relative">
             <div v-show="toggleSetting"
