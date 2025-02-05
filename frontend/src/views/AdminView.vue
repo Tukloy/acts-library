@@ -11,11 +11,6 @@ const router = useRouter()
 const toggleSidebar = ref(true)
 const state = reactive({
     user: '',
-    academic_papers: {},
-    books: {},
-    transactions: {},
-    activities: {},
-    accounts: {},
     isLoading: false,
 })
 
@@ -28,76 +23,6 @@ const getUser = async () => {
         }
     } catch (error) {
         console.error('Error getting user:', error);
-    } finally {
-        state.isLoading = false;
-    }
-}
-
-const getAcademicPapers = async () => {
-    try {
-        state.isLoading = true;
-        const response = await axios.get('/api/academic-papers');
-        if (response.status === 200) {
-            state.academic_papers = response.data;
-        }
-    } catch (error) {
-        console.error('Error getting academic papers:', error);
-    } finally {
-        state.isLoading = false;
-    }
-}
-
-const getBooks = async () => {
-    try {
-        state.isLoading = true;
-        const response = await axios.get('/api/books');
-        if (response.status === 200) {
-            state.books = response.data;
-        }
-    } catch (error) {
-        console.error('Error getting books:', error);
-    } finally {
-        state.isLoading = false;
-    }
-}
-
-const getTransactions = async () => {
-    try {
-        state.isLoading = true;
-        const response = await axios.get('/api/transactions');
-        if (response.status === 200) {
-            state.transactions = response.data;
-        }
-    } catch (error) {
-        console.error('Error getting transactions:', error);
-    } finally {
-        state.isLoading = false;
-    }
-}
-
-const getActivities = async () => {
-    try {
-        state.isLoading = true;
-        const response = await axios.get('/api/activities');
-        if (response.status === 200) {
-            state.activities = response.data;
-        }
-    } catch (error) {
-        console.error('Error getting activities:', error);
-    } finally {
-        state.isLoading = false;
-    }
-}
-
-const getAccounts = async () => {
-    try {
-        state.isLoading = true;
-        const response = await axios.get('/api/accounts');
-        if (response.status === 200) {
-            state.accounts = response.data;
-        }
-    } catch (error) {
-        console.error('Error getting accounts:', error);
     } finally {
         state.isLoading = false;
     }
@@ -116,22 +41,19 @@ const logout = async () => {
 
 onMounted(() => {
     getUser();
-    getAcademicPapers();
-    getBooks()
-    getTransactions()
-    getActivities()
-    getAccounts()
 })
 </script>
 <template>
     <div class="relative h-screen flex">
+        <div v-if="state.isLoading" class="absolute inset-0 bg-white/90 flex justify-center items-center z-20">
+            <i class="pi pi-spinner animate-spin text-6xl text-green-800"></i>
+        </div>
         <Sidebar :logo="logo" @emit-logout="logout" :toggleSidebar="toggleSidebar" />
         <div class="w-full flex flex-col">
             <Navbar :username="state.user.name" @emit-logout="logout"
                 @emit-close-sidebar="toggleSidebar = !toggleSidebar" />
-            <div class="flex-1 overflow-auto container-xl">
-                <RouterView :isLoading="state.isLoading" :academic_papers="state.academic_papers" :books="state.books"
-                    :transactions="state.transactions" :activities="state.activities" :accounts="state.accounts" />
+            <div class="flex-1 overflow-auto bg-green-50">
+                <RouterView />
             </div>
         </div>
     </div>

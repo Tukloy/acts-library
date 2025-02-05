@@ -1,6 +1,5 @@
 <script setup>
 import { RouterLink } from 'vue-router';
-import { defineEmits, defineProps } from 'vue';
 
 defineProps(['logo', 'toggleSidebar']);
 const emit = defineEmits(['emit-logout']);
