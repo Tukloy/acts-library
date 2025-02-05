@@ -47,7 +47,7 @@ export const createAccount = async (req, res, next) => {
 
 export const updateAccount = async (req, res, next) => {
     const id = parseInt(req.params.id)
-    const { account_id, name, password, course, year_and_section, email, account_type} = req.body
+    const { account_id, name, password, course, year_and_section, email, account_type, created_at} = req.body
 
     if(!id) return res.status(404).json({ msg: 'Invalid id'})
 
@@ -57,7 +57,7 @@ export const updateAccount = async (req, res, next) => {
     }
     const hashedPassword = await bcrypt.hash(password, 10);
     try {
-        await db.query('UPDATE accounts SET account_id = ?, name = ?, password = ?, course = ?, year_and_section = ?, email = ?, account_type = ? WHERE id = ?', [account_id, name, hashedPassword, course, year_and_section, email, account_type, id])
+        await db.query('UPDATE accounts SET account_id = ?, name = ?, password = ?, course = ?, year_and_section = ?, email = ?, account_type = ?, created_at = ? WHERE id = ?', [account_id, name, hashedPassword, course, year_and_section, email, account_type, created_at,  id])
         res.status(200).json({ msg: 'Account updated successfully'})
     } catch (error) {
         console.error('Error cannot update account', error)

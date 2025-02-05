@@ -201,5 +201,10 @@ export const updateAccountSchema = {
         isString: {
             errorMessage: 'Account type should be a string'
         }
+    },
+    created_at: {
+        notEmpty: {
+            errorMessage: 'Created at is required'
+        }
     }
 }

@@ -44,7 +44,7 @@ export const createBook = async (req, res, next) => {
 
 export const updateBook = async (req, res, next) => {
     const id = parseInt(req.params.id);
-    const { book_id, author_name, title_name, type, status } = req.body
+    const { book_id, author_name, title_name, type, status, created_at } = req.body
     const results = validationResult(req)
 
     if (!results.isEmpty()) {
@@ -52,7 +52,7 @@ export const updateBook = async (req, res, next) => {
       }
 
     try {
-        await db.query('UPDATE books SET book_id = ?, author_name = ?, title_name = ?, type = ?, status = ? WHERE id = ?', [book_id, author_name, title_name, type, status, id])
+        await db.query('UPDATE books SET book_id = ?, author_name = ?, title_name = ?, type = ?, status = ?, created_at = ? WHERE id = ?', [book_id, author_name, title_name, type, status, created_at, id])
         res.status(200).json({ message: 'Book updated successfully' });
     } catch (e) {
         const error = new Error(`Error updating book`);

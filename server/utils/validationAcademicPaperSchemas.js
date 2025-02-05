@@ -185,5 +185,10 @@ export const updateAcademicPaperSchema = {
         isString: {
             errorMessage: 'Type should be a string'
         }
+    },
+    created_at: {
+        notEmpty: {
+            errorMessage: 'Creation date is required'
+        }
     }
 }

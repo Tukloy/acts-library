@@ -44,12 +44,17 @@ onMounted(() => {
 })
 </script>
 <template>
-    <div class="relative h-screen flex">
+    <div class="relative h-screen flex w-full">
         <div v-if="state.isLoading" class="absolute inset-0 bg-white/90 flex justify-center items-center z-20">
             <i class="pi pi-spinner animate-spin text-6xl text-green-800"></i>
         </div>
-        <Sidebar :logo="logo" @emit-logout="logout" :toggleSidebar="toggleSidebar" />
-        <div class="w-full flex flex-col">
+
+        <!-- Sidebar with dynamic width -->
+        <Sidebar :logo="logo" @emit-logout="logout" :toggleSidebar="toggleSidebar" class="transition-all duration-300"
+            :class="{ 'w-64': toggleSidebar, 'w-0 overflow-hidden': !toggleSidebar }" />
+
+        <!-- Main Content -->
+        <div class="flex flex-col" :class="{ 'w-[calc(100%-16rem)]': toggleSidebar, 'w-full': !toggleSidebar }">
             <Navbar :username="state.user.name" @emit-logout="logout"
                 @emit-close-sidebar="toggleSidebar = !toggleSidebar" />
             <div class="flex-1 overflow-auto bg-green-50">

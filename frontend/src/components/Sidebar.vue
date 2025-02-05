@@ -7,7 +7,7 @@ const emit = defineEmits(['emit-logout']);
 
 <template>
     <Transition name="slide">
-        <div v-show="toggleSidebar" class="w-64 flex flex-col h-screen">
+        <div v-show="toggleSidebar" class="flex flex-col h-screen">
             <div class="flex px-3 pt-2 pb-2 border-r border-1 shadow-sm border-gray-100">
                 <img class="h-12 w-12 mr-3" :src="logo" alt="">
                 <div class="text-center flex flex-col justify-center items-center">

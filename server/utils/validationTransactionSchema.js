@@ -41,16 +41,6 @@ export const createTransactionSchema = {
             errorMessage: 'Item ID should be a string'
         }
     },
-    borrow_date: {
-        notEmpty: {
-            errorMessage: 'Borrow date is required'
-        }
-    },
-    due_date: {
-        notEmpty: {
-            errorMessage: 'Due date is required'
-        }
-    },
     status: {
         notEmpty: {
             errorMessage: 'Status is required'
@@ -65,11 +55,6 @@ export const createTransactionSchema = {
             errorMessage: 'Status should be a string'
         }
     },
-    activity_date: {
-        notEmpty: {
-            errorMessage: 'Activity date is required'
-        }
-    }
 }
 
 export const updateTransactionSchema = {
@@ -120,11 +105,6 @@ export const updateTransactionSchema = {
             errorMessage: 'Borrow date is required'
         }
     },
-    due_date: {
-        notEmpty: {
-            errorMessage: 'Due date is required'
-        }
-    },
     status: {
         notEmpty: {
             errorMessage: 'Status is required'
@@ -139,9 +119,9 @@ export const updateTransactionSchema = {
             errorMessage: 'Status should be a string'
         }
     },
-    activity_date: {
+    created_at: {
         notEmpty: {
-            errorMessage: 'Activity date is required'
+            errorMessage: 'Created at is required'
         }
     }
 }

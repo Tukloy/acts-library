@@ -16,7 +16,7 @@ const chartCanvas = ref(null);
 let chartInstance = null;
 
 const data = {
-    labels: ['2024'],
+    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
     datasets: [
         {
             label: 'Books',
@@ -56,7 +56,7 @@ const data = {
 const createChart = () => {
     if (chartCanvas.value && !chartInstance) {
         chartInstance = new Chart(chartCanvas.value, {
-            type: 'bar',
+            type: 'line',
             data: data,
             options: { responsive: true, maintainAspectRatio: false }
         });

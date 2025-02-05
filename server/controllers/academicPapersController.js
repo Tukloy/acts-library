@@ -45,7 +45,7 @@ export const createAcademicPaper = async (req, res, next) => {
 
 export const updateAcademicPaper = async (req, res, next) => {
     const id = parseInt(req.params.id)
-    const { author_name, title_name, status, academic_year, course, type} = req.body
+    const {acadp_id, author_name, title_name, status, academic_year, course, type, created_at} = req.body
     if (isNaN(id)) return res.sendStatus(400)
 
     const results = validationResult(req)
@@ -53,7 +53,7 @@ export const updateAcademicPaper = async (req, res, next) => {
             return res.status(400).json({ errors: results.errors.map(error => error.msg) });
         }
     try {
-        await db.query('UPDATE academic_papers SET author_name = ?, title_name = ?, status = ?, academic_year = ?, course = ? , type = ? WHERE id = ?', [author_name, title_name, status, academic_year, course, type, id])
+        await db.query('UPDATE academic_papers SET acadp_id = ?, author_name = ?, title_name = ?, status = ?, academic_year = ?, course = ? , type = ?, created_at = ? WHERE id = ?', [acadp_id, author_name, title_name, status, academic_year, course, type, created_at, id])
         res.status(200).json({msg: `Academic Paper with id of ${id} is Updated`})
     } catch (error) {
         console.error('Error Updating Academic Paper', error)

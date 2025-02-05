@@ -37,7 +37,7 @@ export const createActivity = async (req, res, next) => {
 
 export const updateActivity = async (req, res, next) => {
     const id = parseInt(req.params.id)
-    const {account_id, activity} = req.body
+    const {account_id, activity, created_at} = req.body
 
     const results = validationResult(req)
     if(!results.isEmpty()) {
@@ -45,7 +45,7 @@ export const updateActivity = async (req, res, next) => {
     }
     
     try {
-         db.query('UPDATE activities SET account_id = ?, activity = ? WHERE id = ?', [account_id, activity, id])
+         db.query('UPDATE activities SET account_id = ?, activity = ?, created_at = ? WHERE id = ?', [account_id, activity, created_at, id])
          res.status(200).json({msg: 'Activity updated'})
     } catch (error) {
         console.error('Error updating activity', error)

@@ -57,5 +57,10 @@ export const updateActivitySchema = {
         isString: {
             errorMessage: 'Activity must be a string'
         }
+    },
+    created_at: {
+        notEmpty: {
+            errorMessage: 'Created at is required'
+        }
     }
 }

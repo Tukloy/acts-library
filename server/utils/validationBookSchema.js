@@ -157,5 +157,10 @@ export const updateBookSchema = {
         isString: {
             errorMessage: 'Status should be a string'
         }
+    },
+    created_at: {
+        notEmpty: {
+            errorMessage: 'Created at is required'
+        }
     }
 }
