@@ -12,6 +12,7 @@ const state = reactive({
     isLoading: false,
 });
 
+const selectedYear = ref(new Date().getFullYear());
 const chartCanvas = ref(null);
 let chartInstance = null;
 
@@ -53,21 +54,49 @@ const data = {
     ]
 };
 
-const createChart = () => {
-    if (chartCanvas.value && !chartInstance) {
-        chartInstance = new Chart(chartCanvas.value, {
-            type: 'line',
-            data: data,
-            options: { responsive: true, maintainAspectRatio: false }
-        });
-    }
+const groupByYearAndMonth = (data) => {
+    const groupedData = {};
+
+    data.forEach(item => {
+        const date = new Date(item.created_at);
+        const year = date.getFullYear();
+        const month = date.getMonth();
+
+        if (!groupedData[year]) {
+            groupedData[year] = Array(12).fill(0);
+        }
+
+        groupedData[year][month] += 1;
+    });
+
+    return groupedData;
 };
 
+// Update chart data based on selected year
 const updateChartData = () => {
-    data.datasets[0].data = [state.books.length];
-    data.datasets[1].data = [state.academic_papers.length];
-    data.datasets[2].data = [state.accounts.filter(a => a.account_type === 'student').length];
-    data.datasets[3].data = [state.transactions.length];
+    const booksGrouped = groupByYearAndMonth(state.books);
+    const papersGrouped = groupByYearAndMonth(state.academic_papers);
+    const studentsGrouped = groupByYearAndMonth(state.accounts.filter(a => a.account_type === 'student'));
+    const transactionsGrouped = groupByYearAndMonth(state.transactions);
+
+    const year = selectedYear.value; // Get the selected year
+
+    // Fetch data for the selected year
+    const yearData = booksGrouped[year] || Array(12).fill(0);
+    const papersData = papersGrouped[year] || Array(12).fill(0);
+    const studentsData = studentsGrouped[year] || Array(12).fill(0);
+    const transactionsData = transactionsGrouped[year] || Array(12).fill(0);
+
+    // Update the datasets for the chart
+    data.datasets[0].data = yearData;
+    data.datasets[1].data = papersData;
+    data.datasets[2].data = studentsData;
+    data.datasets[3].data = transactionsData;
+
+    // Update the chart's labels to the months
+    data.labels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+    // Update the chart
     if (chartInstance) chartInstance.update();
 };
 
@@ -98,6 +127,36 @@ onMounted(async () => {
     createChart();
 });
 
+const createChart = () => {
+    if (chartCanvas.value && !chartInstance) {
+        chartInstance = new Chart(chartCanvas.value, {
+            type: 'line',
+            data: data,
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Month'
+                        },
+                        ticks: {
+                            autoSkip: true
+                        }
+                    },
+                    y: {
+                        title: {
+                            display: true,
+                            text: 'Count'
+                        }
+                    }
+                }
+            }
+        });
+    }
+};
+
 watchEffect(() => {
     if (state.books.length || state.academic_papers.length || state.transactions.length) {
         updateChartData();
@@ -112,6 +171,7 @@ watchEffect(() => {
         </div>
         <div class="p-5 flex flex-col gap-y-4 container mx-auto w-full">
             <p class="text-2xl text-gray mb-4">Welcome to Dashboard</p>
+            <!-- Dashboard Stats -->
             <div class="grid lg:grid-cols-4 md:grid-cols-2 gap-6">
                 <div
                     class="bg-white flex items-center justify-between p-4 border border-gray-200 group hover:shadow-md transition">
@@ -155,8 +215,19 @@ watchEffect(() => {
                     </div>
                 </div>
             </div>
-            <div class="w-full bg-white p-4 border border-gray-200">
+
+            <!-- Chart -->
+            <div class="w-full bg-white p-4 border border-gray-200 relative">
                 <canvas ref="chartCanvas" height="300"></canvas>
+                <div class="absolute top-3 right-7">
+                    <select v-model="selectedYear" @change="updateChartData"
+                        class="p-1 border border-1 border-gray-200 outline-none cursor-pointer rounded-md text-xs">
+                        <!-- Generate years dynamically, you can limit range or fetch from data -->
+                        <option v-for="year in Object.keys(groupByYearAndMonth(state.books))" :key="year" :value="year">
+                            {{ year }}
+                        </option>
+                    </select>
+                </div>
             </div>
         </div>
     </div>
