@@ -106,10 +106,7 @@ onMounted(() => {
 </script>
 
 <template>
-    <div class="relative h-full w-full">
-        <div v-if="state.isLoading" class="absolute inset-0 bg-white/90 flex justify-center items-center z-10">
-            <i class="pi pi-spinner animate-spin text-6xl text-green-800"></i>
-        </div>
+    <div class="h-full w-full">
         <div class="p-5 container mx-auto w-full h-full">
             <p class="text-2xl mb-4">Books</p>
             <div class="">
@@ -132,7 +129,11 @@ onMounted(() => {
                             ADD</RouterLink>
                     </div>
                 </div>
-                <table class="table-auto border border-1 border-gray-200 bg-white w-full">
+                <table class="table-auto border border-1 border-gray-200 bg-white w-full relative">
+                    <div v-if="state.isLoading"
+                        class="absolute inset-0 bg-white/90 flex justify-center items-center z-10">
+                        <i class="pi pi-spinner animate-spin text-6xl text-green-800"></i>
+                    </div>
                     <thead>
                         <tr class="border border-b border-1 border-gray-200 text-gray-600 text-sm">
                             <th class="px-4 py-2">Id</th>
@@ -152,7 +153,7 @@ onMounted(() => {
                             <td class="px-4 py-2">{{ book.title_name.toUpperCase() }}</td>
                             <td class="px-4 py-2 border border-x border-1 border-gray-200 text-center">{{
                                 book.type.toUpperCase()
-                            }}</td>
+                                }}</td>
                             <td class="px-4 py-2 text-center flex items-center justify-center">
                                 <span class="text-[10px] text-gray-50 px-3 py-1 w-24 rounded-full"
                                     :class="{ 'bg-green-400': book.status.toLowerCase() === 'available', 'bg-red-400': book.status.toLowerCase() === 'checked out', 'bg-gray-400': book.status.toLowerCase() === 'archived' }">

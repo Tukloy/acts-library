@@ -103,10 +103,7 @@ onMounted(() => {
 </script>
 
 <template>
-    <div class="relative h-full w-full">
-        <div v-if="state.isLoading" class="absolute inset-0 bg-white/90 flex justify-center items-center z-10">
-            <i class="pi pi-spinner animate-spin text-6xl text-green-800"></i>
-        </div>
+    <div class="h-full w-full">
         <div class="p-5 container mx-auto w-full h-full">
             <p class="text-2xl mb-4">Academic Papers</p>
             <div class="">
@@ -129,7 +126,11 @@ onMounted(() => {
                             ADD</RouterLink>
                     </div>
                 </div>
-                <table class="table-auto border border-1 border-gray-200 bg-white w-full">
+                <table class="table-auto border border-1 border-gray-200 bg-white w-full relative">
+                    <div v-if="state.isLoading"
+                        class="absolute inset-0 bg-white/90 flex justify-center items-center z-10">
+                        <i class="pi pi-spinner animate-spin text-6xl text-green-800"></i>
+                    </div>
                     <thead>
                         <tr class="border border-b border-1 border-gray-200 text-gray-600 text-sm">
                             <th class="px-4 py-2">Id</th>
@@ -154,7 +155,7 @@ onMounted(() => {
                             <td class="px-4 py-2 text-center">{{ paper.academic_year.toUpperCase() }}</td>
                             <td class="px-4 py-2 border border-x border-1 border-gray-200 text-center">{{
                                 paper.type.toUpperCase()
-                                }}</td>
+                            }}</td>
                             <td class="px-4 py-2 text-center">
                                 <span class="text-[10px] bg-green-400 text-gray-50 px-3 py-1 rounded-full">
                                     {{ paper.status.toUpperCase() }}
