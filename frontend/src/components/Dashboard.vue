@@ -262,7 +262,7 @@
                     <div class="bg-white p-4 border border-1 border-gray-200">
                         <!-- (Last Month to Today) -->
                         <p class="mb-4">New Members</p>
-                        <div v-for="account in filteredAccounts" :key="account.id"
+                        <div v-for="account in filteredAccounts.slice(0, 5)" :key="account.id"
                             class="grid grid-cols-3 items-center gap-4 p-4 border border-1 border-gray-200 shadow-sm rounded-md text-sm hover:bg-gray-100 mb-3 relative">
                             <div class="flex items-center ">
                                 <i class="pi pi-user bg-blue-400 text-gray-50 p-2 rounded-full mr-2"></i>

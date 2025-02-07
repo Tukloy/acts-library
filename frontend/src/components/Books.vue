@@ -113,14 +113,24 @@ onMounted(() => {
         <div class="p-5 container mx-auto w-full h-full">
             <p class="text-2xl mb-4">Books</p>
             <div class="">
-                <div class="flex justify-end mb-2 items-center text-sm">
-                    <p class="mr-2">Search:</p>
-                    <input v-model="state.searchQuery"
-                        class="border border-1 border-gray-200 bg-white rounded-md pr-4 pl-2 py-1 outline-none focus:border-green-500 mr-4"
-                        type="text" placeholder="Search here...">
-                    <RouterLink to="/books/create-book"
-                        class="text-green-600 text-sm px-8 py-1 shadow-sm bg-green-200 rounded-full hover:bg-green-600 hover:text-gray-50 transition ease duration-300 cursor-pointer">
-                        ADD</RouterLink>
+                <div class="flex items-center justify-between mb-2  text-sm">
+                    <div class="flex items-center">
+                        <p class="mr-1">Search:</p>
+                        <input v-model="state.searchQuery"
+                            class="border border-1 border-gray-200 bg-white rounded-md pr-4 pl-2 py-1 outline-none focus:border-green-500 mr-4"
+                            type="text" placeholder="Search here...">
+                    </div>
+                    <div class="flex items-center gap-x-2">
+                        <button
+                            class="text-gray-400 text-sm px-8 py-1 shadow-sm bg-gray-200 rounded-full hover:bg-green-600 hover:text-gray-50 transition ease duration-300 cursor-pointer">
+                            UPLOAD</button>
+                        <button
+                            class="text-gray-400 text-sm px-8 py-1 shadow-sm bg-gray-200 rounded-full hover:bg-green-600 hover:text-gray-50 transition ease duration-300 cursor-pointer">
+                            DOWNLOAD</button>
+                        <RouterLink to="/books/create-book"
+                            class="text-green-600 text-sm px-8 py-1 shadow-sm bg-green-200 rounded-full hover:bg-green-600 hover:text-gray-50 transition ease duration-300 cursor-pointer">
+                            ADD</RouterLink>
+                    </div>
                 </div>
                 <table class="table-auto border border-1 border-gray-200 bg-white w-full">
                     <thead>
