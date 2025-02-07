@@ -3,14 +3,48 @@ import { validationResult } from 'express-validator'
 
 export const getBooks = async (req, res, next) => {
     try {
-        const [books] = await db.query('SELECT * FROM books');
-        res.status(200).json(books);
+        let limit = parseInt(req.query.limit, 10);
+        const offset = parseInt(req.query.offset, 10) || 0;
+        const search = req.query.search ? `%${req.query.search}%` : null;
+        let sortBy = req.query.sort_by || 'title_name';
+        let order = req.query.order && req.query.order.toUpperCase() === 'DESC' ? 'DESC' : 'ASC';
+
+        const validSortColumns = ['title_name', 'author_name', 'type', 'status', 'created_at'];
+        if (!validSortColumns.includes(sortBy)) {
+            sortBy = 'created_at';
+        }
+
+        let query = `SELECT * FROM books`;
+        let countQuery = `SELECT COUNT(*) AS total FROM books`;
+        let params = [];
+
+        if (search) {
+            query += ` WHERE title_name LIKE ? OR author_name LIKE ? OR type LIKE ? OR status LIKE ?`;
+            countQuery += ` WHERE title_name LIKE ? OR author_name LIKE ? OR type LIKE ? OR status LIKE ?`;
+            params.push(search, search, search, search);
+        }
+
+        query += ` ORDER BY ${sortBy} ${order}`;
+
+        if (limit && limit > 0) {
+            query += ` LIMIT ? OFFSET ?`;
+            params.push(limit, offset);
+        }
+
+        const [books] = await db.query(query, params);
+        const [[{ total }]] = await db.query(countQuery, search ? [search, search, search, search] : []);
+
+        res.status(200).json({
+            records: books,
+            total: total
+        });
     } catch (e) {
-        const error = new Error(`Unable to fetch books`);
-        error.status = 404;
-        return next(error)
+        console.error("Database Error:", e);
+        const error = new Error("Unable to fetch books");
+        error.status = 500;
+        return next(error);
     }
-}
+};
 
 export const getBook = async (req, res, next) => {
     const id = parseInt(req.params.id);

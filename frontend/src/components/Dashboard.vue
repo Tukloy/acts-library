@@ -1,6 +1,7 @@
     <script setup>
     import axios from 'axios';
     import { reactive, onMounted, ref, watchEffect, computed } from 'vue';
+    import { RouterLink } from 'vue-router';
     import Chart from 'chart.js/auto';
 
     const state = reactive({
@@ -137,8 +138,8 @@
                 axios.get('/api/activities'),
                 axios.get('/api/accounts')
             ]);
-            state.books = booksRes.data;
-            state.academic_papers = papersRes.data;
+            state.books = booksRes.data.records;
+            state.academic_papers = papersRes.data.records;
             state.transactions = transRes.data;
             state.activities = actRes.data;
             state.accounts = accRes.data;
@@ -197,7 +198,7 @@
                 <i class="pi pi-spinner animate-spin text-6xl text-green-800"></i>
             </div>
             <div class="p-5 flex flex-col gap-y-4 container mx-auto w-full">
-                <p class="text-2xl text-gray mb-4">Welcome to Dashboard</p>
+                <p class="text-2xl mb-4">Welcome to Dashboard</p>
                 <div class="grid lg:grid-cols-4 md:grid-cols-2 gap-6">
                     <div
                         class="bg-white flex items-center justify-between p-4 border border-gray-200 group hover:shadow-md transition">
@@ -257,7 +258,7 @@
                     </div>
                 </div>
 
-                <div class="grid grid-cols-2 gap-4">
+                <div class="grid xl:grid-cols-2 lg:grid-cols-2 sm:grid-cols-1 gap-4">
                     <div class="bg-white p-4 border border-1 border-gray-200">
                         <!-- (Last Month to Today) -->
                         <p class="mb-4">New Members</p>
@@ -276,11 +277,11 @@
                                     class="pi pi-trash bg-red-400 text-gray-50 p-1 rounded-md text-[10px] hover:bg-red-500 transition ease duration-200 cursor-pointer"></i>
                             </div>
                         </div>
-                        <div class="flex justify-end">
+                        <RouterLink to="/accounts" class="flex justify-end">
                             <p
                                 class="bg-blue-400 hover:bg-blue-500 transition ease duration-200 text-[11px] text-gray-50 py-1 px-4 cursor-pointer">
                                 List All</p>
-                        </div>
+                        </RouterLink>
                     </div>
                     <div class="bg-white p-4 border border-1 border-gray-200">
                         <!-- (Last Month to Today) -->
@@ -300,11 +301,11 @@
                                     class="pi pi-trash bg-red-400 text-gray-50 p-1 rounded-md text-[10px] hover:bg-red-500 transition ease duration-200 cursor-pointer"></i>
                             </div>
                         </div>
-                        <div class="flex justify-end">
+                        <RouterLink to="/books" class="flex justify-end">
                             <p
                                 class="bg-blue-400 hover:bg-blue-500 transition ease duration-200 text-[11px] text-gray-50 py-1 px-4 cursor-pointer">
                                 List All</p>
-                        </div>
+                        </RouterLink>
                     </div>
                 </div>
             </div>

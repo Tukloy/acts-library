@@ -3,6 +3,8 @@ import LoginView from '@/views/LoginView.vue';
 import AdminView from '@/views/AdminView.vue';
 import NotFoundView from '@/views/NotfoundView.vue';
 import Dashboard from '@/components/Dashboard.vue';
+import AcademicPapers from '@/components/AcademicPapers.vue';
+import Books from '@/components/Books.vue';
 import axios from 'axios';
 
 const router = createRouter({
@@ -24,10 +26,20 @@ const router = createRouter({
           component: Dashboard,
         },
         {
+          path: '/academic-papers',
+          name: 'academic-papers',
+          component: AcademicPapers,
+        },
+        {
+          path: '/books',
+          name: 'books',
+          component: Books,
+        },
+        {
           path: '/:catchAll(.*)',
           name: "not-found",
           component: NotFoundView,
-        }
+        },
       ],
     },
   ],

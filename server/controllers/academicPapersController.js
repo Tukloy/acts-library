@@ -3,14 +3,41 @@ import { validationResult } from 'express-validator';
 
 export const getAcademicPapers = async (req, res, next) => {
     try {
-        const [academic_papers] = await db.query('SELECT * FROM academic_papers')
-        res.status(200).json(academic_papers);
+        let limit = parseInt(req.query.limit, 10);
+        const offset = parseInt(req.query.offset, 10) || 0;
+        const search = req.query.search ? `%${req.query.search}%` : null;
+
+        let query = 'SELECT * FROM academic_papers';
+        let countQuery = 'SELECT COUNT(*) AS total FROM academic_papers';
+        let params = [];
+
+        if (search) {
+            const searchCondition = ' WHERE title_name LIKE ? OR author_name LIKE ? OR type LIKE ? OR academic_year LIKE ? OR course LIKE ? OR status LIKE ?';
+            query += searchCondition;
+            countQuery += searchCondition;
+            params.push(search, search, search, search, search, search);
+        }
+
+        if (limit && limit > 0) {
+            query += ' LIMIT ? OFFSET ?';
+            params.push(limit, offset);
+        }
+
+        const [papers] = await db.query(query, params);
+        const [[{ total }]] = await db.query(countQuery, params.slice(0, search ? 6 : 0)); // Ensures parameters match
+
+        res.status(200).json({
+            records: papers,
+            total: total
+        });
     } catch (e) {
-        const error = new Error(`Unable to fetch accounts`);
-        error.status = 404;
-        return next(error)
+        console.error("Database Error:", e);
+        const error = new Error("Unable to fetch academic papers");
+        error.status = 500;
+        return next(error);
     }
-}
+};
+
 
 export const getAcademicPaper = async (req, res, next) => {
     const id = parseInt(req.params.id)

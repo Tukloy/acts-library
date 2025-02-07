@@ -45,11 +45,9 @@ onMounted(() => {
 </script>
 <template>
     <div class="relative h-screen flex w-full">
-        <div v-if="state.isLoading" class="absolute inset-0 bg-white/90 flex justify-center items-center z-20">
+        <div v-if="state.isLoading" class="absolute inset-0 bg-white/90 flex justify-center items-center z-30">
             <i class="pi pi-spinner animate-spin text-6xl text-green-800"></i>
         </div>
-
-        <!-- Sidebar with dynamic width -->
         <Sidebar :logo="logo" @emit-logout="logout" :toggleSidebar="toggleSidebar" class="transition-all duration-300"
             :class="{ 'w-64': toggleSidebar, 'w-0 overflow-hidden': !toggleSidebar }" />
 
