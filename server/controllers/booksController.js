@@ -6,7 +6,7 @@ export const getBooks = async (req, res, next) => {
         let limit = parseInt(req.query.limit, 10);
         const offset = parseInt(req.query.offset, 10) || 0;
         const search = req.query.search ? `%${req.query.search}%` : null;
-        let sortBy = req.query.sort_by || 'title_name';
+        let sortBy = req.query.sort_by || 'created_at';
         let order = req.query.order && req.query.order.toUpperCase() === 'DESC' ? 'DESC' : 'ASC';
 
         const validSortColumns = ['title_name', 'author_name', 'type', 'status', 'created_at'];

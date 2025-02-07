@@ -6,33 +6,41 @@ export const getAcademicPapers = async (req, res, next) => {
         let limit = parseInt(req.query.limit, 10);
         const offset = parseInt(req.query.offset, 10) || 0;
         const search = req.query.search ? `%${req.query.search}%` : null;
+        let sortBy = req.query.sort_by || 'created_at';
+        let order = req.query.order && req.query.order.toUpperCase() === 'DESC' ? 'DESC' : 'ASC';
 
-        let query = 'SELECT * FROM academic_papers';
-        let countQuery = 'SELECT COUNT(*) AS total FROM academic_papers';
+        const validSortColumns = ['title_name', 'author_name', 'type', 'status', 'academic_year', 'course', 'created_at'];
+        if (!validSortColumns.includes(sortBy)) {
+            sortBy = 'created_at';
+        }
+
+        let query = `SELECT * FROM academic_papers`;
+        let countQuery = `SELECT COUNT(*) AS total FROM academic_papers`;
         let params = [];
 
         if (search) {
-            const searchCondition = ' WHERE title_name LIKE ? OR author_name LIKE ? OR type LIKE ? OR academic_year LIKE ? OR course LIKE ? OR status LIKE ?';
-            query += searchCondition;
-            countQuery += searchCondition;
+            query += ` WHERE title_name LIKE ? OR author_name LIKE ? OR type LIKE ? OR status LIKE ? OR academic_year LIKE ? OR course LIKE ?`;
+            countQuery += ` WHERE title_name LIKE ? OR author_name LIKE ? OR type LIKE ? OR status LIKE ? OR academic_year LIKE ? OR course LIKE ?`;
             params.push(search, search, search, search, search, search);
         }
 
+        query += ` ORDER BY ${sortBy} ${order}`;
+
         if (limit && limit > 0) {
-            query += ' LIMIT ? OFFSET ?';
+            query += ` LIMIT ? OFFSET ?`;
             params.push(limit, offset);
         }
 
-        const [papers] = await db.query(query, params);
-        const [[{ total }]] = await db.query(countQuery, params.slice(0, search ? 6 : 0)); // Ensures parameters match
+        const [books] = await db.query(query, params);
+        const [[{ total }]] = await db.query(countQuery, search ? [search, search, search, search, search, search] : []);
 
         res.status(200).json({
-            records: papers,
+            records: books,
             total: total
         });
     } catch (e) {
         console.error("Database Error:", e);
-        const error = new Error("Unable to fetch academic papers");
+        const error = new Error("Unable to fetch books");
         error.status = 500;
         return next(error);
     }

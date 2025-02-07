@@ -8,6 +8,8 @@ const state = reactive({
     currentPage: 1,
     pageSize: 10,
     totalRecords: 0,
+    sortBy: 'created_at',
+    order: 'DESC',
     searchQuery: ''
 });
 
@@ -17,11 +19,16 @@ const getAcademicPapers = async () => {
     try {
         state.isLoading = true;
         const offset = (state.currentPage - 1) * state.pageSize;
+        const sortBy = state.sortBy || 'created_at';
+        const order = state.order || 'DESC';
+
         const response = await axios.get(`/api/academic-papers`, {
             params: {
                 limit: state.pageSize,
                 offset: offset,
-                search: state.searchQuery
+                search: state.searchQuery,
+                sort_by: sortBy,
+                order: order
             }
         });
 
@@ -101,13 +108,26 @@ onMounted(() => {
             <i class="pi pi-spinner animate-spin text-6xl text-green-800"></i>
         </div>
         <div class="p-5 container mx-auto w-full h-full">
-            <p class="text-2xl mb-2">Academic Papers</p>
+            <p class="text-2xl mb-4">Academic Papers</p>
             <div class="">
-                <div class="flex justify-end mb-2 items-center text-sm">
-                    <p class="mr-2">Search:</p>
-                    <input v-model="state.searchQuery"
-                        class="border border-1 border-gray-200 bg-white rounded-md pr-4 pl-2 py-1 outline-none focus:border-green-500"
-                        type="text">
+                <div class="flex items-center justify-between mb-2  text-sm">
+                    <div class="flex items-center">
+                        <p class="mr-1">Search:</p>
+                        <input v-model="state.searchQuery"
+                            class="border border-1 border-gray-200 bg-white rounded-md pr-4 pl-2 py-1 outline-none focus:border-green-500 mr-4"
+                            type="text" placeholder="Search here...">
+                    </div>
+                    <div class="flex items-center gap-x-2">
+                        <button
+                            class="text-gray-400 text-sm px-8 py-1 shadow-sm bg-gray-200 rounded-full hover:bg-green-600 hover:text-gray-50 transition ease duration-300 cursor-pointer">
+                            UPLOAD</button>
+                        <button
+                            class="text-gray-400 text-sm px-8 py-1 shadow-sm bg-gray-200 rounded-full hover:bg-green-600 hover:text-gray-50 transition ease duration-300 cursor-pointer">
+                            DOWNLOAD</button>
+                        <RouterLink to="/books/create-book"
+                            class="text-green-600 text-sm px-8 py-1 shadow-sm bg-green-200 rounded-full hover:bg-green-600 hover:text-gray-50 transition ease duration-300 cursor-pointer">
+                            ADD</RouterLink>
+                    </div>
                 </div>
                 <table class="table-auto border border-1 border-gray-200 bg-white w-full">
                     <thead>
@@ -118,7 +138,8 @@ onMounted(() => {
                             <th class="px-4 py-2 border border-x border-1 border-gray-200">Course</th>
                             <th class="px-4 py-2">Year</th>
                             <th class="px-4 py-2 border border-x border-1 border-gray-200">Type</th>
-                            <th class="px-4 py-2">Status</th>
+                            <th class="px-4 py-2 border border-r border-1 border-gray-200">Status</th>
+                            <th class="px-4 py-2">Action</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -131,12 +152,21 @@ onMounted(() => {
                             <td class="px-4 py-2 border border-x border-1 border-gray-200 text-center">{{
                                 paper.course.toUpperCase() }}</td>
                             <td class="px-4 py-2 text-center">{{ paper.academic_year.toUpperCase() }}</td>
-                            <td class="px-4 py-2 border border-x border-1 border-gray-200">{{ paper.type.toUpperCase()
+                            <td class="px-4 py-2 border border-x border-1 border-gray-200 text-center">{{
+                                paper.type.toUpperCase()
                                 }}</td>
                             <td class="px-4 py-2 text-center">
                                 <span class="text-[10px] bg-green-400 text-gray-50 px-3 py-1 rounded-full">
                                     {{ paper.status.toUpperCase() }}
                                 </span>
+                            </td>
+                            <td class="px-4 py-2 border border-r border-1 border-gray-200 w-16">
+                                <div class="flex justify-center gap-x-2">
+                                    <i
+                                        class="pi pi-pencil bg-blue-400 text-gray-50 p-1 rounded-md text-[10px] hover:bg-blue-500 transition ease duration-200 cursor-pointer"></i>
+                                    <i
+                                        class="pi pi-trash bg-red-400 text-gray-50 p-1 rounded-md text-[10px] hover:bg-red-500 transition ease duration-200 cursor-pointer"></i>
+                                </div>
                             </td>
                         </tr>
                     </tbody>
