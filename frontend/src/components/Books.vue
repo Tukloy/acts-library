@@ -153,7 +153,7 @@ onMounted(() => {
                             <td class="px-4 py-2">{{ book.title_name.toUpperCase() }}</td>
                             <td class="px-4 py-2 border border-x border-1 border-gray-200 text-center">{{
                                 book.type.toUpperCase()
-                                }}</td>
+                            }}</td>
                             <td class="px-4 py-2 text-center flex items-center justify-center">
                                 <span class="text-[10px] text-gray-50 px-3 py-1 w-24 rounded-full"
                                     :class="{ 'bg-green-400': book.status.toLowerCase() === 'available', 'bg-red-400': book.status.toLowerCase() === 'checked out', 'bg-gray-400': book.status.toLowerCase() === 'archived' }">

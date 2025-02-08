@@ -4,6 +4,7 @@ import AdminView from '@/views/AdminView.vue';
 import NotFoundView from '@/views/NotfoundView.vue';
 import Dashboard from '@/components/Dashboard.vue';
 import AcademicPapers from '@/components/AcademicPapers.vue';
+import AcademicPaperCreate from '@/layout/AcademicPaperCreate.vue';
 import Books from '@/components/Books.vue';
 import axios from 'axios';
 
@@ -29,6 +30,11 @@ const router = createRouter({
           path: '/academic-papers',
           name: 'academic-papers',
           component: AcademicPapers,
+        },
+        {
+          path: '/academic-papers/create',
+          name: 'academic-paper-create',
+          component: AcademicPaperCreate,
         },
         {
           path: '/books',

@@ -46,8 +46,8 @@ export const createAcademicPaperSchema = {
     },
     status: {
         isIn: {
-            options: [['available', 'borrowed', 'achived']],
-            errorMessage: 'Status should be either available, borrowed or archived'
+            options: [['available', 'checked out', 'archived']],
+            errorMessage: 'Status should be either available, checked out or archived'
         },
         notEmpty: {
             errorMessage: 'Status is required'
@@ -141,8 +141,8 @@ export const updateAcademicPaperSchema = {
     },
     status: {
         isIn: {
-            options: [['available', 'borrowed', 'achived']],
-            errorMessage: 'Status should be either available, borrowed or archived'
+            options: [['available', 'checked out', 'archived']],
+            errorMessage: 'Status should be either available, checked out or archived'
         },
         notEmpty: {
             errorMessage: 'Status is required'
