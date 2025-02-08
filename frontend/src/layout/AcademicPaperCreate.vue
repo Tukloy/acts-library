@@ -42,10 +42,10 @@ const submitForm = async () => {
         router.push('/academic-papers')
     } catch (error) {
         if (error.response) {
-            errorMessage.value = error.response.data.errors[0] || 'creating failed';
+            errorMessage.value = error.response.data.msg || error.response.data.errors[0] || 'creating failed';
             toast.error(errorMessage.value);
         } else {
-            errorMessage.value = 'An error occurred. Please try again later.';
+            console.error(error)
         }
     }
 }
