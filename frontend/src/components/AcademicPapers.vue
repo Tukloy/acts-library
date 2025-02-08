@@ -1,9 +1,14 @@
 <script setup>
 import axios from 'axios';
-import { reactive, onMounted, computed, watch } from 'vue';
+import { RouterLink } from 'vue-router';
+import { reactive, ref, onMounted, computed, watch } from 'vue';
+import AcademicPaperEdit from '@/layout/AcademicPaperEdit.vue';
+
+const toggleEdit = ref(false)
 
 const state = reactive({
     academic_papers: [],
+    selectedPaper: null,
     isLoading: false,
     currentPage: 1,
     pageSize: 10,
@@ -40,6 +45,12 @@ const getAcademicPapers = async () => {
         state.isLoading = false;
     }
 };
+
+const selectPaper = (paper) => {
+    state.selectedPaper = paper;
+    toggleEdit.value = true;
+    console.log(paper)
+}
 
 const nextPage = () => {
     if (state.currentPage < totalPages.value) {
@@ -103,6 +114,8 @@ onMounted(() => {
 </script>
 
 <template>
+    <AcademicPaperEdit :toggleEdit="toggleEdit" @emit-close-edit="toggleEdit = false"
+        :selectedPaper="state.selectedPaper" @emit-paper-updated="getAcademicPapers()" />
     <div class="h-full w-full">
         <div class="p-5 container mx-auto w-full h-full">
             <p class="text-2xl mb-4">Academic Papers</p>
@@ -155,16 +168,18 @@ onMounted(() => {
                             <td class="px-4 py-2 text-center">{{ paper.academic_year.toUpperCase() }}</td>
                             <td class="px-4 py-2 border border-x border-1 border-gray-200 text-center">{{
                                 paper.type.toUpperCase()
-                                }}</td>
-                            <td class="px-4 py-2 text-center">
-                                <span class="text-[10px] bg-green-400 text-gray-50 px-3 py-1 rounded-full">
+                            }}</td>
+                            <td class="px-4 py-2 text-center flex items-center justify-center">
+                                <span class="text-[10px] text-gray-50 px-3 py-1 w-24 rounded-full"
+                                    :class="{ 'bg-green-400': paper.status.toLowerCase() === 'available', 'bg-red-400': paper.status.toLowerCase() === 'checked out', 'bg-gray-400': paper.status.toLowerCase() === 'archived' }">
                                     {{ paper.status.toUpperCase() }}
                                 </span>
                             </td>
                             <td class="px-4 py-2 border border-r border-1 border-gray-200 w-16">
                                 <div class="flex justify-center gap-x-2">
-                                    <i
-                                        class="pi pi-pencil bg-blue-400 text-gray-50 p-1 rounded-md text-[10px] hover:bg-blue-500 transition ease duration-200 cursor-pointer"></i>
+                                    <button type="button" @click="selectPaper(paper)"
+                                        class="pi pi-pencil bg-blue-400 text-gray-50 p-1 rounded-md text-[10px] hover:bg-blue-500 transition ease duration-200 cursor-pointer">
+                                    </button>
                                     <i
                                         class="pi pi-trash bg-red-400 text-gray-50 p-1 rounded-md text-[10px] hover:bg-red-500 transition ease duration-200 cursor-pointer"></i>
                                 </div>

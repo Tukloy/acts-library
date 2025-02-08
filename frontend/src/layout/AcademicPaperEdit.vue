@@ -1,13 +1,18 @@
 <script setup>
 import axios from 'axios';
-import { RouterLink, useRouter } from 'vue-router';
 import { useToast } from 'vue-toastification';
-import { reactive, ref } from 'vue';
+import { reactive, ref, watch } from 'vue';
 
-const router = useRouter();
+const props = defineProps({
+    toggleEdit: Boolean,
+    selectedPaper: Object
+})
+
+const emit = defineEmits(['emit-close-edit', 'emit-paper-updated'])
 const toast = useToast();
 
 const form = reactive({
+    id: null,
     acadp_id: '',
     author_name: '',
     course: '',
@@ -15,24 +20,30 @@ const form = reactive({
     academic_year: '',
     type: '',
     status: '',
+    created_at: '',
     isLoading: false
 })
 
 const errorMessage = ref('');
 
 const submitForm = async () => {
-    const newPaper = {
+    const editPaper = {
         acadp_id: form.acadp_id.toLowerCase(),
         author_name: form.author_name.toLowerCase(),
         course: form.course.toLowerCase(),
         title_name: form.title_name.toLowerCase(),
         academic_year: form.academic_year,
         type: form.type,
-        status: form.status
+        status: form.status,
+        created_at: form.created_at
     }
     try {
         form.isLoading = true;
-        await axios.post('/api/academic-papers', newPaper);
+        await axios.put(`/api/academic-papers/${form.id}`, editPaper);
+        toast.success('Academic paper updated successfully!');
+
+        emit('emit-paper-updated');
+
         form.acadp_id = '';
         form.author_name = '';
         form.course = '';
@@ -40,11 +51,12 @@ const submitForm = async () => {
         form.academic_year = '';
         form.type = '';
         form.status = '';
-        toast.success('Academic paper added successfully!');
-        router.push('/academic-papers')
+        form.created_at = '';
+
+        emit('emit-close-edit')
     } catch (error) {
         if (error.response) {
-            errorMessage.value = error.response.data.msg || error.response.data.errors[0] || 'creating failed';
+            errorMessage.value = error.response.data.msg || error.response.data.errors[0] || 'updating failed';
             toast.error(errorMessage.value);
         } else {
             console.error(error)
@@ -53,10 +65,24 @@ const submitForm = async () => {
         form.isLoading = false;
     }
 }
+
+watch(() => props.selectedPaper, (newVal) => {
+    if (newVal) {
+        form.id = newVal.id || '';
+        form.acadp_id = newVal.acadp_id || '';
+        form.author_name = newVal.author_name || '';
+        form.course = newVal.course || '';
+        form.title_name = newVal.title_name || '';
+        form.academic_year = newVal.academic_year || '';
+        form.type = newVal.type || '';
+        form.status = newVal.status || '';
+        form.created_at = newVal.created_at || '';
+    }
+}, { immediate: true });
 </script>
 <template>
-    <div class="relative h-full w-full">
-        <div v-if="form.isLoading" class="absolute inset-0 bg-white/90 flex justify-center items-center z-10">
+    <div v-show="toggleEdit" class="absolute inset-0 bg-black/80 z-30 flex items-center justify-center">
+        <div v-if="false" class="absolute inset-0 bg-white/90 flex justify-center items-center z-10">
             <i class="pi pi-spinner animate-spin text-6xl text-green-800"></i>
         </div>
         <div class="p-5 container flex flex-col items-center mx-auto w-full h-full">
@@ -119,9 +145,9 @@ const submitForm = async () => {
                     </div>
                 </div>
                 <div class="flex justify-end gap-x-4">
-                    <RouterLink to="/academic-papers"
+                    <button @click="emit('emit-close-edit')" type="button"
                         class="text-gray-400 text-sm px-8 py-1 shadow-sm bg-gray-200 rounded-full hover:bg-green-600 hover:text-gray-50 transition ease duration-300 cursor-pointer">
-                        CANCEL</RouterLink>
+                        CANCEL</button>
                     <button type="submit"
                         class="text-green-600 text-sm px-8 py-1 shadow-sm bg-green-200 rounded-full hover:bg-green-600 hover:text-gray-50 transition ease duration-300 cursor-pointer">
                         SAVE</button>
