@@ -91,8 +91,29 @@ export const updateAcademicPaper = async (req, res, next) => {
         await db.query('UPDATE academic_papers SET acadp_id = ?, author_name = ?, title_name = ?, status = ?, academic_year = ?, course = ? , type = ?, created_at = ? WHERE id = ?', [acadp_id, author_name, title_name, status, academic_year, course, type, created_at, id])
         res.status(200).json({msg: `Academic Paper with id of ${id} is Updated`})
     } catch (error) {
-        res.status(400).json({msg: `check if id of ${acadp_id} already exists`})
         console.error('Error Updating Academic Paper', error)
+    }
+}
+
+export const uploadAcademicPapers =  async (req, res) => {
+    try {
+        const papers = req.body.papers;
+        if (!papers || papers.length === 0) {
+            return res.status(400).json({ error: "No data received" });
+        }
+
+        // Insert each paper into the database
+        for (const paper of papers) {
+            await db.query(
+                `INSERT INTO academic_papers (acadp_id, author_name, title_name, course, academic_year, type, status) VALUES (?, ?, ?, ?, ?, ?, ?)`,
+                [paper.acadp_id, paper.author_name, paper.title_name, paper.course, paper.academic_year, paper.type, paper.status]
+            );
+        }
+
+        res.json({ message: "Upload successful!" });
+    } catch (error) {
+        console.error("Upload error:", error);
+        res.status(500).json({ error: "Failed to upload data" });
     }
 }
 
