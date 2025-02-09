@@ -22,9 +22,9 @@ const login = async () => {
             account_id: state.username,
             password: state.password
         }, { withCredentials: true });
-        toast(`Welcome back ${response.data.name}`)
         console.log(response.data)
         setTimeout(() => {
+            toast(`Welcome back ${response.data.name}`)
             router.push('/dashboard');
         }, 500);
     } catch (error) {

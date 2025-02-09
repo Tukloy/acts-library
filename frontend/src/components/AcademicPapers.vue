@@ -5,6 +5,7 @@ import { reactive, ref, onMounted, computed, watch } from 'vue';
 import { useToast } from 'vue-toastification';
 import AcademicPaperEdit from '@/layout/AcademicPaperEdit.vue';
 import ConfirmModal from '@/reusable/ConfirmModal.vue';
+import * as XLSX from 'xlsx';
 
 const toast = useToast();
 
@@ -129,6 +130,91 @@ const visiblePages = computed(() => {
     return pages;
 });
 
+const downloadExcel = async () => {
+    try {
+        const response = await axios.get('/api/academic-papers', {
+            params: {
+                limit: state.totalRecords, // Fetch all records
+                sort_by: state.sortBy,
+                order: state.order
+            }
+        });
+
+        const papers = response.data.records;
+
+        // Convert Data to Excel Format
+        const worksheet = XLSX.utils.json_to_sheet(papers.map(paper => ({
+            "ID": paper.acadp_id,
+            "Author Name": paper.author_name,
+            "Title Name": paper.title_name,
+            "Course": paper.course,
+            "Year": paper.academic_year,
+            "Type": paper.type,
+            "Status": paper.status
+        })));
+
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, "Academic Papers");
+
+        // Create Excel File and Trigger Download
+        const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
+        const blob = new Blob([excelBuffer], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.download = "academic_papers.xlsx";
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+
+        toast.success('Excel file downloaded successfully!');
+    } catch (error) {
+        console.error('Download error:', error);
+        toast.error('Failed to download Excel file');
+    }
+};
+
+const uploadExcel = async (event) => {
+    const file = event.target.files[0];
+    if (!file) {
+        toast.error('No file selected');
+        return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = async (e) => {
+        try {
+            const data = new Uint8Array(e.target.result);
+            const workbook = XLSX.read(data, { type: 'array' });
+            const sheetName = workbook.SheetNames[0];
+            const sheet = workbook.Sheets[sheetName];
+            const jsonData = XLSX.utils.sheet_to_json(sheet);
+
+            // Ensure proper formatting (matching API expectations)
+            const formattedData = jsonData.map(row => ({
+                acadp_id: row["ID"] || '',
+                author_name: row["Author Name"] || '',
+                title_name: row["Title Name"] || '',
+                course: row["Course"] || '',
+                academic_year: row["Year"] || '',
+                type: row["Type"] || '',
+                status: row["Status"] || ''
+            }));
+
+            // Send data to API for database insertion
+            await axios.post('/api/academic-papers/upload', { papers: formattedData });
+
+            toast.success('File uploaded successfully!');
+            getAcademicPapers(); // Refresh data list
+        } catch (error) {
+            console.error('Upload error:', error);
+            toast.error('Failed to upload Excel file');
+        }
+    };
+
+    reader.readAsArrayBuffer(file);
+};
+
+
 watch(() => state.searchQuery, () => {
     state.currentPage = 1;
     getAcademicPapers();
@@ -156,10 +242,12 @@ onMounted(() => {
                             type="text" placeholder="Search here...">
                     </div>
                     <div class="flex items-center gap-x-2">
-                        <button
+                        <label
                             class="text-gray-400 text-sm px-8 py-1 shadow-sm bg-gray-200 rounded-full hover:bg-green-600 hover:text-gray-50 transition ease duration-300 cursor-pointer">
-                            UPLOAD</button>
-                        <button
+                            UPLOAD
+                            <input type="file" accept=".xlsx" @change="uploadExcel" class="hidden">
+                        </label>
+                        <button @click="downloadExcel" type="button"
                             class="text-gray-400 text-sm px-8 py-1 shadow-sm bg-gray-200 rounded-full hover:bg-green-600 hover:text-gray-50 transition ease duration-300 cursor-pointer">
                             DOWNLOAD</button>
                         <RouterLink to="/academic-papers/create"
