@@ -2,9 +2,14 @@
 import axios from 'axios';
 import { RouterLink } from 'vue-router';
 import { reactive, ref, onMounted, computed, watch } from 'vue';
+import { useToast } from 'vue-toastification';
 import AcademicPaperEdit from '@/layout/AcademicPaperEdit.vue';
+import ConfirmModal from '@/reusable/ConfirmModal.vue';
+
+const toast = useToast();
 
 const toggleEdit = ref(false)
+const toggleDelete = ref(false)
 
 const state = reactive({
     academic_papers: [],
@@ -51,6 +56,27 @@ const selectPaper = (paper) => {
     toggleEdit.value = true;
     console.log(paper)
 }
+
+const deletePaper = async () => {
+    if (!state.selectedPaper) {
+        toast.error('No paper selected for deletion');
+        return;
+    }
+
+    try {
+        await axios.delete(`/api/academic-papers/${state.selectedPaper.id}`);
+        toast.success('Academic Paper deleted successfully');
+
+        state.selectedPaper = null;
+        toggleDelete.value = false;
+
+        getAcademicPapers();
+    } catch (error) {
+        toast.error('Failed to delete Academic Paper');
+        console.error(error);
+    }
+};
+
 
 const nextPage = () => {
     if (state.currentPage < totalPages.value) {
@@ -116,6 +142,8 @@ onMounted(() => {
 <template>
     <AcademicPaperEdit :toggleEdit="toggleEdit" @emit-close-edit="toggleEdit = false"
         :selectedPaper="state.selectedPaper" @emit-paper-updated="getAcademicPapers()" />
+    <ConfirmModal :toggleDelete="toggleDelete" @emit-close-delete="toggleDelete = false"
+        @emit-confirm-delete="deletePaper()" questionText="Are you sure?" confirmText="Delete" />
     <div class="h-full w-full">
         <div class="p-5 container mx-auto w-full h-full">
             <p class="text-2xl mb-4">Academic Papers</p>
@@ -168,7 +196,7 @@ onMounted(() => {
                             <td class="px-4 py-2 text-center">{{ paper.academic_year.toUpperCase() }}</td>
                             <td class="px-4 py-2 border border-x border-1 border-gray-200 text-center">{{
                                 paper.type.toUpperCase()
-                            }}</td>
+                                }}</td>
                             <td class="px-4 py-2 text-center flex items-center justify-center">
                                 <span class="text-[10px] text-gray-50 px-3 py-1 w-24 rounded-full"
                                     :class="{ 'bg-green-400': paper.status.toLowerCase() === 'available', 'bg-red-400': paper.status.toLowerCase() === 'checked out', 'bg-gray-400': paper.status.toLowerCase() === 'archived' }">
@@ -180,8 +208,8 @@ onMounted(() => {
                                     <button type="button" @click="selectPaper(paper)"
                                         class="pi pi-pencil bg-blue-400 text-gray-50 p-1 rounded-md text-[10px] hover:bg-blue-500 transition ease duration-200 cursor-pointer">
                                     </button>
-                                    <i
-                                        class="pi pi-trash bg-red-400 text-gray-50 p-1 rounded-md text-[10px] hover:bg-red-500 transition ease duration-200 cursor-pointer"></i>
+                                    <button type="button" @click="state.selectedPaper = paper; toggleDelete = true"
+                                        class="pi pi-trash bg-red-400 text-gray-50 p-1 rounded-md text-[10px] hover:bg-red-500 transition ease duration-200 cursor-pointer"></button>
                                 </div>
                             </td>
                         </tr>

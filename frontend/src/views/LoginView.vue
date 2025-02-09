@@ -21,10 +21,12 @@ const login = async () => {
         const response = await axios.post('/api/login', {
             account_id: state.username,
             password: state.password
-        });
+        }, { withCredentials: true });
         toast(`Welcome back ${response.data.name}`)
         console.log(response.data)
-        router.push('/dashboard');
+        setTimeout(() => {
+            router.push('/dashboard');
+        }, 500);
     } catch (error) {
         if (error.response) {
             errorMessage.value = error.response.data.info.message || 'Login failed';

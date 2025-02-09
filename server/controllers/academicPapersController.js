@@ -91,6 +91,7 @@ export const updateAcademicPaper = async (req, res, next) => {
         await db.query('UPDATE academic_papers SET acadp_id = ?, author_name = ?, title_name = ?, status = ?, academic_year = ?, course = ? , type = ?, created_at = ? WHERE id = ?', [acadp_id, author_name, title_name, status, academic_year, course, type, created_at, id])
         res.status(200).json({msg: `Academic Paper with id of ${id} is Updated`})
     } catch (error) {
+        res.status(400).json({msg: `check if id of ${acadp_id} already exists`})
         console.error('Error Updating Academic Paper', error)
     }
 }

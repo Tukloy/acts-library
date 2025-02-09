@@ -21,7 +21,7 @@ router.post("/login", (req, res, next) => {
   });
   
   router.get("/me", ensureAuthenticated, (req, res) => {
-    res.json({ user: req.user }); // You can return user info here
+    res.json({ user: req.user });
   });
   
   router.get("/logout", (req, res) => {
