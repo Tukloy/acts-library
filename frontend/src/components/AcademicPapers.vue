@@ -194,12 +194,22 @@ onMounted(() => {
                             <td class="px-4 py-2 border border-x border-1 border-gray-200 text-center">{{
                                 paper.course.toUpperCase() }}</td>
                             <td class="px-4 py-2 text-center">{{ paper.academic_year.toUpperCase() }}</td>
-                            <td class="px-4 py-2 border border-x border-1 border-gray-200 text-center">{{
-                                paper.type.toUpperCase()
-                                }}</td>
+                            <td class="px-4 py-2 border border-x border-1 border-gray-200 text-center">
+                                <span class="text-[10px] p-1 rounded-sm inline-block min-w-[5rem] text-center" :class="{
+                                    'text-cyan-100 bg-cyan-600': paper.type.toLowerCase() === 'thesis',
+                                    'text-blue-100 bg-blue-500': paper.type.toLowerCase() === 'project',
+                                    'text-gray-100 bg-gray-800 ': paper.type.toLowerCase() === 'capstone'
+                                }">
+                                    {{ paper.type.toUpperCase() }}
+                                </span>
+                            </td>
+
                             <td class="px-4 py-2 text-center flex items-center justify-center">
-                                <span class="text-[10px] text-gray-50 px-3 py-1 w-24 rounded-full"
-                                    :class="{ 'bg-green-400': paper.status.toLowerCase() === 'available', 'bg-red-400': paper.status.toLowerCase() === 'checked out', 'bg-gray-400': paper.status.toLowerCase() === 'archived' }">
+                                <span class="text-[10px] text-gray-50 px-3 py-1 w-24 rounded-full" :class="{
+                                    'bg-green-400': paper.status.toLowerCase() === 'available',
+                                    'bg-red-400': paper.status.toLowerCase() === 'checked out',
+                                    'bg-gray-400': paper.status.toLowerCase() === 'archived'
+                                }">
                                     {{ paper.status.toUpperCase() }}
                                 </span>
                             </td>
