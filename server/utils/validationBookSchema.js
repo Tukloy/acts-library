@@ -9,12 +9,9 @@ export const createBookSchema = {
         },
         notEmpty: {
             errorMessage: 'Book ID is required'
-        },
+        },  
         isString: {
             errorMessage: 'Book ID should be a string'
-        },
-        isAlphanumeric: {
-            errorMessage: 'Book ID should only contain alphanumeric characters'
         }
     },
     author_name: {
