@@ -133,7 +133,7 @@ const submitForm = async () => {
                     </div>
                 </div>
                 <div class="flex justify-end gap-x-4">
-                    <RouterLink to="/academic-papers"
+                    <RouterLink to="/books"
                         class="text-gray-400 text-sm px-8 py-1 shadow-sm bg-gray-200 rounded-full hover:bg-green-600 hover:text-gray-50 transition ease duration-300 cursor-pointer">
                         CANCEL</RouterLink>
                     <button type="submit"

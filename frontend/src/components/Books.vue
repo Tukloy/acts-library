@@ -5,6 +5,7 @@ import { reactive, onMounted, computed, watch } from 'vue';
 
 const state = reactive({
     books: [],
+    type: [],
     isLoading: false,
     currentPage: 1,
     pageSize: 10,
@@ -41,6 +42,33 @@ const getBooks = async () => {
         state.isLoading = false;
     }
 };
+
+const getColorType = (type) => {
+    const colorMap = {
+        'romance': 'bg-rose-200 text-rose-600',
+        'comedy': 'bg-yellow-200 text-yellow-600',
+        'adventure': 'bg-green-200 text-green-600',
+        'horror': 'bg-violet-200 text-violet-600',
+        'dystopian': 'bg-stone-200 text-stone-600',
+        'biography': 'bg-sky-200 text-sky-600',
+        'fiction': 'bg-amber-200 text-amber-600',
+        'fantasy': 'bg-emerald-200 text-emerald-600',
+        'classics': 'bg-teal-200 text-teal-600',
+        'thriller': 'bg-purple-200 text-purple-600',
+        'anime': 'bg-linear-to-r from-yellow-300 via-red-600 to-yellow-300 text-gray-50',
+        'crime': 'bg-pink-200 text-pink-600',
+        'autobiography': 'bg-teal-200 text-teal-600',
+        'guide': 'bg-cyan-200 text-cyan-600',
+        'essay': 'bg-blue-200 text-blue-600',
+        'journalism': 'bg-indigo-200 text-indigo-600',
+        'diary': 'bg-pink-200 text-pink-600',
+        'memoir': 'bg-green-200 text-green-600',
+        'default': 'bg-gray-200 text-gray-800' // Default color if type not found
+    };
+
+    return colorMap[type.toLowerCase()] || colorMap['default'];
+};
+
 
 
 const nextPage = () => {
@@ -151,14 +179,19 @@ onMounted(() => {
                             <td class="px-4 py-2 border border-x border-1 border-gray-200">{{
                                 book.author_name.toUpperCase() }}</td>
                             <td class="px-4 py-2">{{ book.title_name.toUpperCase() }}</td>
-                            <td class="px-4 py-2 border border-x border-1 border-gray-200 text-center">{{
-                                book.type.toUpperCase()
-                                }}</td>
+                            <td class="p-1 border border-x border-1 border-gray-200">
+                                <div class="grid grid-cols-1 gap-2"
+                                    :class="{ 'grid-cols-3': book.type.split(' ').length > 3, 'grid-cols-2': book.type.split(' ').length > 1 }">
+                                    <p v-for="(item, index) in book.type.split(' ')" :key="index"
+                                        :class="getColorType(item)" class="text-center rounded py-1 text-[10px]">
+                                        {{ item.toUpperCase() }}</p>
+                                </div>
+                            </td>
                             <td class="px-4 py-2 text-center flex items-center justify-center">
-                                <span class="text-[10px] text-gray-50 px-3 py-1 w-24 rounded-full"
+                                <p class="text-[10px] text-gray-50 px-3 py-1 w-24 rounded-full flex items-center justify-center"
                                     :class="{ 'bg-green-400': book.status.toLowerCase() === 'available', 'bg-red-400': book.status.toLowerCase() === 'checked out', 'bg-gray-400': book.status.toLowerCase() === 'archived' }">
                                     {{ book.status.toUpperCase() }}
-                                </span>
+                                </p>
                             </td>
                             <td class="px-4 py-2 border border-r border-1 border-gray-200 w-16">
                                 <div class="flex justify-center gap-x-2">
