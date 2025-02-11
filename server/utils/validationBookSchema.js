@@ -2,10 +2,10 @@ export const createBookSchema = {
     book_id: {
         isLength: {
             options: {
-                min: 5,
+                min: 4,
                 max: 32
             },
-            errorMessage: 'Book ID should be between 5 and 32 characters long'
+            errorMessage: 'Book ID should be between 4 and 32 characters long'
         },
         notEmpty: {
             errorMessage: 'Book ID is required'
@@ -80,19 +80,16 @@ export const updateBookSchema = {
     book_id: {
         isLength: {
             options: {
-                min: 5,
+                min: 4,
                 max: 32
             },
-            errorMessage: 'Book ID should be between 5 and 32 characters long'
+            errorMessage: 'Book ID should be between 4 and 32 characters long'
         },
         notEmpty: {
             errorMessage: 'Book ID is required'
         },
         isString: {
             errorMessage: 'Book ID should be a string'
-        },
-        isAlphanumeric: {
-            errorMessage: 'Book ID should only contain alphanumeric characters'
         }
     },
     author_name: {

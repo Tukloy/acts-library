@@ -63,20 +63,18 @@ router.beforeEach(async (to, from, next) => {
     const response = await axios.get('/api/me', { withCredentials: true });
 
     if (response.status === 200) {
-      // User is authenticated
       if (to.name === 'login') {
-        return next({ name: 'dashboard' }); // Redirect to dashboard if already logged in
+        return next({ name: 'dashboard' });
       }
-      return next(); // Proceed normally
+      return next();
     }
   } catch (error) {
-    // If there's an error (e.g., user is not authenticated)
-    if (to.meta.requiresAuth) {
-      return next({ name: 'login' }); // Redirect to login if trying to access a protected route
+    if (error.response?.status === 401 && to.meta.requiresAuth) {
+      return next({ name: 'login' });
     }
   }
-  
-  next(); // Proceed to the requested route
-});
+
+  next();
+})
 
 export default router;

@@ -1,12 +1,16 @@
 <script setup>
 import axios from 'axios';
 import { RouterLink } from 'vue-router';
-import { reactive, onMounted, computed, watch } from 'vue';
+import BookEdit from '@/layout/BookEdit.vue';
+import { reactive, onMounted, computed, watch, ref } from 'vue';
+
+const toggleEdit = ref(false)
 
 const state = reactive({
     books: [],
     type: [],
     isLoading: false,
+    selectedBook: null,
     currentPage: 1,
     pageSize: 10,
     totalRecords: 0,
@@ -69,6 +73,11 @@ const getColorType = (type) => {
     return colorMap[type.toLowerCase()] || colorMap['default'];
 };
 
+const selectBook = (book) => {
+    state.selectedBook = book;
+    toggleEdit.value = true;
+    console.log(book)
+}
 
 
 const nextPage = () => {
@@ -134,6 +143,8 @@ onMounted(() => {
 </script>
 
 <template>
+    <BookEdit :toggleEdit="toggleEdit" @emit-close-edit="toggleEdit = false" :selectedBook="state.selectedBook"
+        @emit-book-updated="getBooks()" />
     <div class="h-full w-full">
         <div class="p-5 container mx-auto w-full h-full">
             <p class="text-2xl mb-4">Books</p>
@@ -195,8 +206,8 @@ onMounted(() => {
                             </td>
                             <td class="px-4 py-2 border border-r border-1 border-gray-200 w-16">
                                 <div class="flex justify-center gap-x-2">
-                                    <i
-                                        class="pi pi-pencil bg-blue-400 text-gray-50 p-1 rounded-md text-[10px] hover:bg-blue-500 transition ease duration-200 cursor-pointer"></i>
+                                    <button type="button" @click="selectBook(book)"
+                                        class="pi pi-pencil bg-blue-400 text-gray-50 p-1 rounded-md text-[10px] hover:bg-blue-500 transition ease duration-200 cursor-pointer"></button>
                                     <i
                                         class="pi pi-trash bg-red-400 text-gray-50 p-1 rounded-md text-[10px] hover:bg-red-500 transition ease duration-200 cursor-pointer"></i>
                                 </div>
