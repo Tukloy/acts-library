@@ -2,9 +2,13 @@
 import axios from 'axios';
 import { RouterLink } from 'vue-router';
 import BookEdit from '@/layout/BookEdit.vue';
+import ConfirmModal from '@/reusable/ConfirmModal.vue';
+import { useToast } from 'vue-toastification';
 import { reactive, onMounted, computed, watch, ref } from 'vue';
 
 const toggleEdit = ref(false)
+const toggleDelete = ref(false)
+const toast = useToast()
 
 const state = reactive({
     books: [],
@@ -79,6 +83,26 @@ const selectBook = (book) => {
     console.log(book)
 }
 
+const deleteBook = async () => {
+    if (!state.selectedBook) {
+        toast.error('No paper selected for deletion');
+        return;
+    }
+
+    try {
+        await axios.delete(`/api/books/${state.selectedBook.id}`);
+        toast.success('Book deleted successfully');
+
+        state.selectedBook = null;
+        toggleDelete.value = false;
+
+        getBooks();
+    } catch (error) {
+        toast.error('Failed to delete Book');
+        console.error(error);
+    }
+};
+
 
 const nextPage = () => {
     if (state.currentPage < totalPages.value) {
@@ -145,6 +169,8 @@ onMounted(() => {
 <template>
     <BookEdit :toggleEdit="toggleEdit" @emit-close-edit="toggleEdit = false" :selectedBook="state.selectedBook"
         @emit-book-updated="getBooks()" />
+    <ConfirmModal :toggleDelete="toggleDelete" @emit-close-delete="toggleDelete = false"
+        @emit-confirm-delete="deleteBook()" questionText="Are you sure?" confirmText="Delete" />
     <div class="h-full w-full">
         <div class="p-5 container mx-auto w-full h-full">
             <p class="text-2xl mb-4">Books</p>
@@ -208,8 +234,8 @@ onMounted(() => {
                                 <div class="flex justify-center gap-x-2">
                                     <button type="button" @click="selectBook(book)"
                                         class="pi pi-pencil bg-blue-400 text-gray-50 p-1 rounded-md text-[10px] hover:bg-blue-500 transition ease duration-200 cursor-pointer"></button>
-                                    <i
-                                        class="pi pi-trash bg-red-400 text-gray-50 p-1 rounded-md text-[10px] hover:bg-red-500 transition ease duration-200 cursor-pointer"></i>
+                                    <button type="button" @click="state.selectedBook = book; toggleDelete = true"
+                                        class="pi pi-trash bg-red-400 text-gray-50 p-1 rounded-md text-[10px] hover:bg-red-500 transition ease duration-200 cursor-pointer"></button>
                                 </div>
                             </td>
                         </tr>
