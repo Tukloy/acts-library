@@ -122,8 +122,47 @@ const downloadExcel = () => {
     XLSX.utils.book_append_sheet(workbook, worksheet, "Books");
 
     XLSX.writeFile(workbook, "Books.xlsx");
+    toast.success('Excel file downloaded successfully');
 };
 
+const uploadExcel = async (event) => {
+    const file = event.target.files[0];
+    if (!file) {
+        toast.error('No file selected');
+        return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = async (e) => {
+        try {
+            const data = new Uint8Array(e.target.result);
+            const workbook = XLSX.read(data, { type: 'array' });
+            const sheetName = workbook.SheetNames[0];
+            const sheet = workbook.Sheets[sheetName];
+            const jsonData = XLSX.utils.sheet_to_json(sheet);
+
+            // Ensure proper formatting (matching API expectations)
+            const formattedData = jsonData.map(row => ({
+                book_id: row["ID"] || '',
+                author_name: row["Author Name"] || '',
+                title_name: row["Title Name"] || '',
+                type: row["Type"] || '',
+                status: row["Status"] || ''
+            }));
+
+            // Send data to API for database insertion
+            await axios.post('/api/books/upload', { books: formattedData });
+
+            toast.success('File uploaded successfully!');
+            getBooks(); // Refresh data list
+        } catch (error) {
+            console.error('Upload error:', error);
+            toast.error('Failed to upload Excel file');
+        }
+    };
+
+    reader.readAsArrayBuffer(file);
+};
 
 const nextPage = () => {
     if (state.currentPage < totalPages.value) {
@@ -204,9 +243,11 @@ onMounted(() => {
                             type="text" placeholder="Search here...">
                     </div>
                     <div class="flex items-center gap-x-2">
-                        <button
+                        <label
                             class="text-gray-400 text-sm px-8 py-1 shadow-sm bg-gray-200 rounded-full hover:bg-green-600 hover:text-gray-50 transition ease duration-300 cursor-pointer">
-                            UPLOAD</button>
+                            UPLOAD
+                            <input type="file" accept=".xlsx" @change="uploadExcel" class="hidden">
+                        </label>
                         <button @click="downloadExcel"
                             class="text-gray-400 text-sm px-8 py-1 shadow-sm bg-gray-200 rounded-full hover:bg-green-600 hover:text-gray-50 transition ease duration-300 cursor-pointer">
                             DOWNLOAD</button>

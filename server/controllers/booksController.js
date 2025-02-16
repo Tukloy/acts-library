@@ -95,6 +95,28 @@ export const updateBook = async (req, res, next) => {
     }
 }
 
+export const uploadBooks =  async (req, res) => {
+    try {
+        const books = req.body.books;
+        if (!books || books.length === 0) {
+            return res.status(400).json({ error: "No data received" });
+        }
+
+        // Insert each book into the database
+        for (const book of books) {
+            await db.query(
+                `INSERT INTO books (book_id, author_name, title_name, type, status) VALUES (?, ?, ?, ?, ?)`,
+                [book.book_id, book.author_name, book.title_name, book.type, book.status]
+            );
+        }
+
+        res.json({ message: "Upload successful!" });
+    } catch (error) {
+        console.error("Upload error:", error);
+        res.status(500).json({ error: "Failed to upload data" });
+    }
+}
+
 export const deleteBook = async (req, res, next) => {
     const id = parseInt(req.params.id)
     try {
