@@ -5,6 +5,7 @@ import BookEdit from '@/layout/BookEdit.vue';
 import ConfirmModal from '@/reusable/ConfirmModal.vue';
 import { useToast } from 'vue-toastification';
 import { reactive, onMounted, computed, watch, ref } from 'vue';
+import * as XLSX from 'xlsx';
 
 const toggleEdit = ref(false)
 const toggleDelete = ref(false)
@@ -103,6 +104,26 @@ const deleteBook = async () => {
     }
 };
 
+const downloadExcel = () => {
+    if (state.books.length === 0) {
+        toast.error("No data available to export.");
+        return;
+    }
+
+    const worksheet = XLSX.utils.json_to_sheet(state.books.map(book => ({
+        "ID": book.book_id.toUpperCase(),
+        "Author Name": book.author_name.toUpperCase(),
+        "Title Name": book.title_name.toUpperCase(),
+        "Type": book.type.toUpperCase(),
+        "Status": book.status.toUpperCase()
+    })));
+
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Books");
+
+    XLSX.writeFile(workbook, "Books.xlsx");
+};
+
 
 const nextPage = () => {
     if (state.currentPage < totalPages.value) {
@@ -186,7 +207,7 @@ onMounted(() => {
                         <button
                             class="text-gray-400 text-sm px-8 py-1 shadow-sm bg-gray-200 rounded-full hover:bg-green-600 hover:text-gray-50 transition ease duration-300 cursor-pointer">
                             UPLOAD</button>
-                        <button
+                        <button @click="downloadExcel"
                             class="text-gray-400 text-sm px-8 py-1 shadow-sm bg-gray-200 rounded-full hover:bg-green-600 hover:text-gray-50 transition ease duration-300 cursor-pointer">
                             DOWNLOAD</button>
                         <RouterLink to="/books/create"
