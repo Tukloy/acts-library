@@ -139,7 +139,7 @@ onMounted(() => {
                     <i class="absolute top-3 right-3 h-3 w-3 rounded-full"
                         :class="{ ' bg-green-400': transaction.status === 'returned', 'bg-yellow-400': transaction.status === 'borrowed', ' bg-red-400': transaction.status === 'overdued' }"></i>
                     <div @click="toggle(transaction.transaction_id)"
-                        :class="['flex justify-between w-full cursor-pointer p-2 hover:bg-gray-100', index % 2 === 0 ? 'bg-white' : 'bg-gray-50']">
+                        :class="['flex justify-between w-full cursor-pointer p-2 hover:bg-gray-100', openTransaction === transaction.transaction_id ? 'bg-green-100' : index % 2 === 0 ? 'bg-white' : 'bg-gray-50']">
                         <p><span class="font-medium mr-2">Transaction ID:</span> {{
                             transaction.transaction_id.toUpperCase() }}</p>
                         <p class="mr-8 font-medium">Status</p>
@@ -159,7 +159,7 @@ onMounted(() => {
                     <span class="font-medium">{{ (state.currentPage - 1) * state.pageSize + 1 }}</span>
                     to
                     <span class="font-medium">{{ Math.min(state.currentPage * state.pageSize, state.totalRecords)
-                        }}</span>
+                    }}</span>
                     of
                     <span class="font-medium">{{ state.totalRecords }}</span>
                     results
