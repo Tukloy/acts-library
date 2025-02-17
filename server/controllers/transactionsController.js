@@ -3,14 +3,48 @@ import { validationResult } from 'express-validator'
 
 export const getTransactions = async (req, res, next) => {
     try {
-        const [transactions] = await db.query('SELECT * FROM transactions')
-        res.status(200).json(transactions)
+        let limit = parseInt(req.query.limit, 10);
+        const offset = parseInt(req.query.offset, 10) || 0;
+        const search = req.query.search ? `%${req.query.search}%` : null;
+        let sortBy = req.query.sort_by || 'created_at';
+        let order = req.query.order && req.query.order.toUpperCase() === 'DESC' ? 'DESC' : 'ASC';
+
+        const validSortColumns = ['transaction_id', 'item_id', 'borrow_date', 'due_date', 'status', 'created_at'];
+        if (!validSortColumns.includes(sortBy)) {
+            sortBy = 'created_at';
+        }
+
+        let query = `SELECT * FROM transactions`;
+        let countQuery = `SELECT COUNT(*) AS total FROM transactions`;
+        let params = [];
+
+        if (search) {
+            query += ` WHERE transaction_id LIKE ? OR item_id LIKE ? OR borrow_date LIKE ? OR due_date LIKE ? OR status LIKE ?`;
+            countQuery += ` WHERE transaction_id LIKE ? OR item_id LIKE ? OR borrow_date LIKE ? OR due_date LIKE ? OR status LIKE ?`;
+            params.push(search, search, search, search, search);
+        }
+
+        query += ` ORDER BY ${sortBy} ${order}`;
+
+        if (limit && limit > 0) {
+            query += ` LIMIT ? OFFSET ?`;
+            params.push(limit, offset);
+        }
+
+        const [transactions] = await db.query(query, params);
+        const [[{ total }]] = await db.query(countQuery, search ? [search, search, search, search, search] : []);
+
+        res.status(200).json({
+            records: transactions,
+            total: total
+        });
     } catch (e) {
-        const error = new Error('Error Fetching transactions')
-        error.status = 500
-        return next(error)
+        console.error("Database Error:", e);
+        const error = new Error("Unable to fetch transactions");
+        error.status = 500;
+        return next(error);
     }
-}
+};
 
 export const getTransaction = async (req, res, next) => {
     const id = parseInt(req.params.id)

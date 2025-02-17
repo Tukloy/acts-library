@@ -140,7 +140,7 @@
             ]);
             state.books = booksRes.data.records;
             state.academic_papers = papersRes.data.records;
-            state.transactions = transRes.data;
+            state.transactions = transRes.data.records;
             state.activities = actRes.data;
             state.accounts = accRes.data;
         } catch (error) {
@@ -227,9 +227,9 @@
                         </div>
                         <div class="flex flex-col">
                             <p class="text-sm text-gray-500">Total Students</p>
-                            <p class="text-right text-3xl font-semibold">{{ state.accounts.filter(a => a.account_type
+                            <p class="text-right text-3xl font-semibold">{{state.accounts.filter(a => a.account_type
                                 ===
-                                'student').length }}</p>
+                                'student').length}}</p>
                         </div>
                     </div>
                     <div
