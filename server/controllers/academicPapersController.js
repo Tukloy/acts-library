@@ -31,16 +31,16 @@ export const getAcademicPapers = async (req, res, next) => {
             params.push(limit, offset);
         }
 
-        const [books] = await db.query(query, params);
+        const [academic_papers] = await db.query(query, params);
         const [[{ total }]] = await db.query(countQuery, search ? [search, search, search, search, search, search] : []);
 
         res.status(200).json({
-            records: books,
+            records: academic_papers,
             total: total
         });
     } catch (e) {
         console.error("Database Error:", e);
-        const error = new Error("Unable to fetch books");
+        const error = new Error("Unable to fetch academic_papers");
         error.status = 500;
         return next(error);
     }
