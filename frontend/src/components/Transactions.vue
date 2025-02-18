@@ -144,8 +144,11 @@ onMounted(() => {
                 </div>
                 <div v-for="(transaction, index) in state.transactions" :key="transaction.transaction_id"
                     class="border-1 border-gray-200 relative">
-                    <i class="absolute top-3 right-3 h-3 w-3 rounded-full"
-                        :class="{ ' bg-green-400': transaction.status === 'returned', 'bg-yellow-400': transaction.status === 'borrowed', ' bg-red-400': transaction.status === 'overdued' }"></i>
+                    <i class="absolute top-3 right-3 h-3 w-3 rounded-full" :class="{
+                        'bg-green-400': transaction.status.split(' ')[0] === 'returned',
+                        'bg-yellow-400': transaction.status.split(' ')[0] === 'pending',
+                        'bg-red-400': transaction.status.split(' ')[0] === 'overdued'
+                    }"></i>
                     <div @click="toggle(transaction.transaction_id)"
                         :class="['flex justify-between w-full cursor-pointer p-2 hover:bg-gray-100', openTransaction === transaction.transaction_id ? 'bg-green-100' : index % 2 === 0 ? 'bg-white' : 'bg-gray-50']">
                         <p><span class="font-medium mr-2">Transaction ID:</span> {{
@@ -155,12 +158,16 @@ onMounted(() => {
                     <transition name="slide">
                         <div v-if="openTransaction === transaction.transaction_id"
                             class="px-4 pt-2 pb-4 bg-gray-100 flex gap-4">
-                            <div class="flex flex-col flex-1">
-                                <p><strong>Account ID:</strong> {{ transaction.account_id.toUpperCase() }}</p>
-                                <p><strong>Item ID:</strong> {{ transaction.item_id.toUpperCase() }}</p>
-                                <p><strong>Status:</strong> {{ transaction.status.toUpperCase() }}</p>
-                                <p><strong>Borrow Date:</strong> {{ transaction.borrow_date }}</p>
-                                <p><strong>Due Date:</strong> {{ transaction.due_date }}</p>
+                            <div class="flex flex-col flex-1 text-xs">
+                                <p><span>Account ID:</span> {{ transaction.account_id.toUpperCase() }}</p>
+                                <p><span>Item ID:</span> {{ transaction.item_id.toUpperCase() }}</p>
+                                <p><span>Borrow Date:</span> {{ transaction.borrow_date }}</p>
+                                <p class="text-xs mb-3"><span>Due Date:</span> {{ transaction.due_date }}</p>
+                                <p>Status: <span :class="{
+                                    'text-green-800': transaction.status.split(' ')[0] === 'returned',
+                                    'text-yellow-800': transaction.status.split(' ')[0] === 'pending',
+                                    'text-red-800': transaction.status.split(' ')[0] === 'overdued'
+                                }">{{ transaction.status.toUpperCase() }}</span></p>
                             </div>
                             <div class="flex items-center gap-x-2">
                                 <button type="button" @click="selectTransaction(transaction)"
@@ -178,7 +185,7 @@ onMounted(() => {
                     <span class="font-medium">{{ (state.currentPage - 1) * state.pageSize + 1 }}</span>
                     to
                     <span class="font-medium">{{ Math.min(state.currentPage * state.pageSize, state.totalRecords)
-                    }}</span>
+                        }}</span>
                     of
                     <span class="font-medium">{{ state.totalRecords }}</span>
                     results

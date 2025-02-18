@@ -1,5 +1,6 @@
 <script setup>
 import axios from 'axios';
+import VueDatePicker from '@vuepic/vue-datepicker';
 import { reactive, watch, onMounted } from 'vue';
 
 const props = defineProps({
@@ -52,28 +53,29 @@ const getItems = async () => {
         }));
 
         state.items = [...books, ...papers];
-        console.log(state.items)
     } catch (error) {
         console.error(error);
     }
 };
 
 const submitForm = () => {
+    let borrowDate = new Date(form.borrow_date);
+
+    // Add 7 days
+    borrowDate.setDate(borrowDate.getDate() + 7);
+
+    // Store in ISO format (keeps time and timezone)
+    form.due_date = borrowDate.toISOString();
     const updatedTransactions = {
         account_id: form.account_id,
         transaction_id: form.transaction_id,
         item_id: form.item_id,
-        borrow_date: form.borrow_date,
+        borrow_date: form.borrow_date.toISOString(),
         due_date: form.due_date,
         status: form.status
     }
     console.log(updatedTransactions)
 }
-
-onMounted(() => {
-    getAccounts();
-    getItems()
-});
 
 watch(() => props.selectedTransaction, (newVal) => {
     if (newVal) {
@@ -82,10 +84,14 @@ watch(() => props.selectedTransaction, (newVal) => {
         form.transaction_id = newVal.transaction_id || '';
         form.item_id = newVal.item_id || '';
         form.borrow_date = newVal.borrow_date || '';
-        form.due_date = newVal.due_date || '';
         form.status = newVal.status || '';
     }
 }, { deep: true, immediate: true });
+
+onMounted(() => {
+    getAccounts();
+    getItems()
+});
 
 </script>
 <template>
@@ -109,16 +115,16 @@ watch(() => props.selectedTransaction, (newVal) => {
                         <div class="text-sm flex items-center gap-x-4">
                             <p class="w-32">Account ID:</p>
                             <select v-model="form.account_id"
-                                class="border border-1 w-full border-gray-200 p-2 outline-none focus:border-green-400">
+                                class="border border-1 w-full border-gray-200 p-2 outline-none focus:border-green-400 cursor-pointer">
                                 <option v-for="account in state.accounts" :key="account.id" :value="account.account_id">
-                                    {{ account.name }}
+                                    {{ account.account_id }}
                                 </option>
                             </select>
                         </div>
                         <div class="text-sm flex items-center gap-x-4">
                             <p class="w-32">Item ID:</p>
                             <select v-model="form.item_id"
-                                class="border border-1 w-full border-gray-200 p-2 outline-none focus:border-green-400">
+                                class="border border-1 w-full border-gray-200 p-2 outline-none focus:border-green-400 cursor-pointer">
                                 <option v-for="item in state.items" :key="item.id" :value="item.item_id">{{ item.item_id
                                 }}</option>
                             </select>
@@ -126,23 +132,14 @@ watch(() => props.selectedTransaction, (newVal) => {
                         <p class="bg-gray-100 text-green-800 p-2 mb-2">Date Information</p>
                         <div class="text-sm flex items-center gap-x-4">
                             <p class="w-32">Borrow Date:</p>
-                            <select v-model="form.borrow_date"
-                                class="border border-1 w-full border-gray-200 p-2 outline-none focus:border-green-400">
-                                <option value="test">test</option>
-                            </select>
-                        </div>
-                        <div class="text-sm flex items-center gap-x-4">
-                            <p class="w-32">Due Date:</p>
-                            <select v-model="form.due_date"
-                                class="border border-1 w-full border-gray-200 p-2 outline-none focus:border-green-400">
-                                <option value="test">test</option>
-                            </select>
+                            <VueDatePicker v-model="form.borrow_date" auto-apply placeholder="Select a date" />
                         </div>
                         <p class="bg-gray-100 text-green-800 p-2 mb-2">Status</p>
-                        <select v-model="form.status"
-                            class="border border-1 w-full border-gray-200 p-2 outline-none focus:border-green-400">
-                            <option value="test">test</option>
-                        </select>
+                        <input v-model="form.status" disabled="true" :class="{
+                            'bg-green-100 border-green-300': form.status.split(' ')[0] === 'returned',
+                            'bg-yellow-100 border-yellow-300': form.status.split(' ')[0] === 'pending',
+                            'bg-red-100 border-red-300': form.status.split(' ')[0] === 'overdued'
+                        }" class="border border-1 w-full p-2 outline-none focus:border-green-400 text-center">
                     </div>
                     <div class="flex justify-end gap-x-4">
                         <button type="button" @click="emit('emit-close-edit')"

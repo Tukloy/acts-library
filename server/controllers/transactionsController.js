@@ -92,7 +92,6 @@ export const updateTransaction = async (req, res, next) => {
     try {
         // Calculate the new status based on borrow_date, due_date, and return_date
         const currentDate = return_date ? new Date(return_date) : new Date();
-        const borrowDate = new Date(borrow_date);
         const dueDate = new Date(due_date);
         let newStatus = '';
         let dayDifference = 0;

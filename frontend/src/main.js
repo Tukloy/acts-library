@@ -7,6 +7,7 @@ import router from './router'
 import Toast from "vue-toastification";
 // Import the CSS or use your own!
 import "vue-toastification/dist/index.css";
+import '@vuepic/vue-datepicker/dist/main.css'
 
 const app = createApp(App)
 
