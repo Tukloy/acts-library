@@ -27,7 +27,7 @@ const emit = defineEmits(['emit-close-delete', 'emit-confirm-delete'])
     </div>
 </template>
 
-<style>
+<style scoped>
 /* Pop-in animation */
 .modal-enter-active,
 .modal-leave-active {

@@ -81,7 +81,6 @@ const getColorType = (type) => {
 const selectBook = (book) => {
     state.selectedBook = book;
     toggleEdit.value = true;
-    console.log(book)
 }
 
 const deleteBook = async () => {

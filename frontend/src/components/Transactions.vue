@@ -1,9 +1,13 @@
 <script setup>
 import axios from "axios";
+import TransactionEdit from "@/layout/TransactionEdit.vue";
 import { ref, reactive, onMounted, computed, watch } from "vue";
+
+const toggleEdit = ref(false)
 
 const state = reactive({
     transactions: [],
+    selectedTransaction: null,
     isLoading: false,
     searchQuery: '',
     currentPage: 1,
@@ -41,6 +45,11 @@ const getTransactions = async () => {
         state.isLoading = false;
     }
 };
+
+const selectTransaction = (transaction) => {
+    state.selectedTransaction = transaction;
+    toggleEdit.value = true;
+}
 
 const nextPage = () => {
     if (state.currentPage < totalPages.value) {
@@ -106,6 +115,8 @@ onMounted(() => {
 </script>
 
 <template>
+    <TransactionEdit :toggleEdit="toggleEdit" @emit-close-edit="toggleEdit = false"
+        :selectedTransaction="state.selectedTransaction" />
     <div class="p-5 container mx-auto w-full h-full">
         <p class="text-2xl mb-4">Transactions</p>
         <div>
@@ -125,9 +136,6 @@ onMounted(() => {
                     <button @click="downloadExcel"
                         class="text-gray-400 text-sm px-8 py-1 shadow-sm bg-gray-200 rounded-full hover:bg-green-600 hover:text-gray-50 transition ease duration-300 cursor-pointer">
                         DOWNLOAD</button>
-                    <RouterLink to="/books/create"
-                        class="text-green-600 text-sm px-8 py-1 shadow-sm bg-green-200 rounded-full hover:bg-green-600 hover:text-gray-50 transition ease duration-300 cursor-pointer">
-                        ADD</RouterLink>
                 </div>
             </div>
             <div class="border-1 border-gray-200 bg-white p-5 text-sm relative">
@@ -144,13 +152,24 @@ onMounted(() => {
                             transaction.transaction_id.toUpperCase() }}</p>
                         <p class="mr-8 font-medium">Status</p>
                     </div>
-                    <div v-if="openTransaction === transaction.transaction_id" class="pl-4 pt-2 pb-4 bg-gray-100">
-                        <p><strong>Account ID:</strong> {{ transaction.account_id.toUpperCase() }}</p>
-                        <p><strong>Item ID:</strong> {{ transaction.item_id.toUpperCase() }}</p>
-                        <p><strong>Status:</strong> {{ transaction.status.toUpperCase() }}</p>
-                        <p><strong>Borrow Date:</strong> {{ transaction.borrow_date }}</p>
-                        <p><strong>Due Date:</strong> {{ transaction.due_date }}</p>
-                    </div>
+                    <transition name="slide">
+                        <div v-if="openTransaction === transaction.transaction_id"
+                            class="px-4 pt-2 pb-4 bg-gray-100 flex gap-4">
+                            <div class="flex flex-col flex-1">
+                                <p><strong>Account ID:</strong> {{ transaction.account_id.toUpperCase() }}</p>
+                                <p><strong>Item ID:</strong> {{ transaction.item_id.toUpperCase() }}</p>
+                                <p><strong>Status:</strong> {{ transaction.status.toUpperCase() }}</p>
+                                <p><strong>Borrow Date:</strong> {{ transaction.borrow_date }}</p>
+                                <p><strong>Due Date:</strong> {{ transaction.due_date }}</p>
+                            </div>
+                            <div class="flex items-center gap-x-2">
+                                <button type="button" @click="selectTransaction(transaction)"
+                                    class="pi pi-pencil bg-blue-400 text-gray-50 p-1 rounded-md text-[10px] hover:bg-blue-500 transition ease duration-200 cursor-pointer"></button>
+                                <button type="button"
+                                    class="pi pi-trash bg-red-400 text-gray-50 p-1 rounded-md text-[10px] hover:bg-red-500 transition ease duration-200 cursor-pointer"></button>
+                            </div>
+                        </div>
+                    </transition>
                 </div>
             </div>
             <div class="flex items-center justify-between border-t border-gray-200 py-3">
@@ -159,7 +178,7 @@ onMounted(() => {
                     <span class="font-medium">{{ (state.currentPage - 1) * state.pageSize + 1 }}</span>
                     to
                     <span class="font-medium">{{ Math.min(state.currentPage * state.pageSize, state.totalRecords)
-                    }}</span>
+                        }}</span>
                     of
                     <span class="font-medium">{{ state.totalRecords }}</span>
                     results
@@ -188,3 +207,15 @@ onMounted(() => {
         </div>
     </div>
 </template>
+<style scoped>
+.slide-enter-active,
+.slide-leave-active {
+    transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+.slide-enter-from,
+.slide-leave-to {
+    transform: translateY(-10px);
+    opacity: 0;
+}
+</style>
