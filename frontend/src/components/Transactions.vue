@@ -178,7 +178,7 @@ onMounted(() => {
                     <span class="font-medium">{{ (state.currentPage - 1) * state.pageSize + 1 }}</span>
                     to
                     <span class="font-medium">{{ Math.min(state.currentPage * state.pageSize, state.totalRecords)
-                        }}</span>
+                    }}</span>
                     of
                     <span class="font-medium">{{ state.totalRecords }}</span>
                     results

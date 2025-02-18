@@ -1,11 +1,17 @@
 <script setup>
-import { reactive, watch } from 'vue';
+import axios from 'axios';
+import { reactive, watch, onMounted } from 'vue';
 
 const props = defineProps({
     toggleEdit: Boolean,
     selectedTransaction: Object
 })
 const emit = defineEmits(['emit-close-edit'])
+
+const state = reactive({
+    accounts: [],
+    items: []
+})
 const form = reactive({
     id: null,
     transaction_id: '',
@@ -14,7 +20,43 @@ const form = reactive({
     borrow_date: '',
     due_date: '',
     status: '',
+    isLoading: false
 })
+
+const getAccounts = async () => {
+    try {
+        state.isLoading = true;
+        const response = await axios.get('/api/accounts');
+        state.accounts = response.data.filter(account => account.account_type === 'student')
+    } catch (error) {
+        console.error(error);
+    } finally {
+        state.isLoading = false;
+    }
+}
+
+const getItems = async () => {
+    try {
+        const [booksRes, papersRes] = await Promise.all([
+            axios.get('/api/books'),
+            axios.get('/api/academic-papers'),
+        ]);
+
+        const books = booksRes.data.records.map(book => ({
+            ...book,
+            item_id: book.book_id,
+        }));
+        const papers = papersRes.data.records.map(paper => ({
+            ...paper,
+            item_id: paper.acadp_id,
+        }));
+
+        state.items = [...books, ...papers];
+        console.log(state.items)
+    } catch (error) {
+        console.error(error);
+    }
+};
 
 const submitForm = () => {
     const updatedTransactions = {
@@ -27,6 +69,11 @@ const submitForm = () => {
     }
     console.log(updatedTransactions)
 }
+
+onMounted(() => {
+    getAccounts();
+    getItems()
+});
 
 watch(() => props.selectedTransaction, (newVal) => {
     if (newVal) {
@@ -43,6 +90,9 @@ watch(() => props.selectedTransaction, (newVal) => {
 </script>
 <template>
     <div v-show="toggleEdit" class="absolute inset-0 bg-black/80 z-30 flex items-center justify-center">
+        <div v-if="state.isLoading" class="absolute inset-0 bg-white/90 flex justify-center items-center z-10">
+            <i class="pi pi-spinner animate-spin text-6xl text-green-800"></i>
+        </div>
         <transition name="modal">
             <div v-if="toggleEdit"
                 class="p-5 container flex flex-col items-center mx-auto h-full w-full transform transition-transform duration-200">
@@ -60,14 +110,17 @@ watch(() => props.selectedTransaction, (newVal) => {
                             <p class="w-32">Account ID:</p>
                             <select v-model="form.account_id"
                                 class="border border-1 w-full border-gray-200 p-2 outline-none focus:border-green-400">
-                                <option value="test">test</option>
+                                <option v-for="account in state.accounts" :key="account.id" :value="account.account_id">
+                                    {{ account.name }}
+                                </option>
                             </select>
                         </div>
                         <div class="text-sm flex items-center gap-x-4">
                             <p class="w-32">Item ID:</p>
                             <select v-model="form.item_id"
                                 class="border border-1 w-full border-gray-200 p-2 outline-none focus:border-green-400">
-                                <option value="test">test</option>
+                                <option v-for="item in state.items" :key="item.id" :value="item.item_id">{{ item.item_id
+                                }}</option>
                             </select>
                         </div>
                         <p class="bg-gray-100 text-green-800 p-2 mb-2">Date Information</p>

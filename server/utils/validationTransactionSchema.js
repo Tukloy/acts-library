@@ -41,20 +41,6 @@ export const createTransactionSchema = {
             errorMessage: 'Item ID should be a string'
         }
     },
-    status: {
-        notEmpty: {
-            errorMessage: 'Status is required'
-        },
-        isLength: {
-            options: {
-                min: 5,
-            },
-            errorMessage: 'Status should be 5 characters long'
-        },
-        isString: {
-            errorMessage: 'Status should be a string'
-        }
-    },
 }
 
 export const updateTransactionSchema = {
@@ -103,20 +89,6 @@ export const updateTransactionSchema = {
     borrow_date: {
         notEmpty: {
             errorMessage: 'Borrow date is required'
-        }
-    },
-    status: {
-        notEmpty: {
-            errorMessage: 'Status is required'
-        },
-        isLength: {
-            options: {
-                min: 5,
-            },
-            errorMessage: 'Status should be 5 characters long'
-        },
-        isString: {
-            errorMessage: 'Status should be a string'
         }
     },
     created_at: {

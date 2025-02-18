@@ -59,8 +59,9 @@ export const getTransaction = async (req, res, next) => {
 }
 
 export const createTransaction = async (req, res, next) => {
-    const { account_id, transaction_id, item_id, status } = req.body
+    const { account_id, transaction_id, item_id } = req.body
     const results = validationResult(req)
+    const status = 'pending'
 
     if (!results.isEmpty()) {
         return res.status(400).json({ errors: results.errors.map(error => error.msg) })
@@ -80,15 +81,36 @@ export const createTransaction = async (req, res, next) => {
 }
 
 export const updateTransaction = async (req, res, next) => {
-    const id = parseInt(req.params.id)
-    const { account_id, transaction_id, item_id, borrow_date, due_date, status, created_at } = req.body
-    const results = validationResult(req)
+    const id = parseInt(req.params.id);
+    const { account_id, transaction_id, item_id, borrow_date, due_date, created_at, return_date } = req.body;
+    const results = validationResult(req);
 
     if (!results.isEmpty()) {
-        return res.status(400).json({ errors: results.errors.map(error => error.msg) })
+        return res.status(400).json({ errors: results.errors.map(error => error.msg) });
     }
+
     try {
-        // Update query
+        // Calculate the new status based on borrow_date, due_date, and return_date
+        const currentDate = return_date ? new Date(return_date) : new Date();
+        const borrowDate = new Date(borrow_date);
+        const dueDate = new Date(due_date);
+        let newStatus = '';
+        let dayDifference = 0;
+
+        if (currentDate < dueDate) {
+            // Returned early
+            dayDifference = Math.floor((dueDate - currentDate) / (1000 * 60 * 60 * 24)); // Calculate the difference in days
+            newStatus = `returned early (${dayDifference} days)`;
+        } else if (currentDate.toDateString() === dueDate.toDateString()) {
+            // Returned on time
+            newStatus = 'returned on time';
+        } else if (currentDate > dueDate) {
+            // Overdue
+            dayDifference = Math.floor((currentDate - dueDate) / (1000 * 60 * 60 * 24)); // Calculate the difference in days
+            newStatus = `overdue (${dayDifference} days)`;
+        }
+
+        // Update the transaction
         await db.query(
             `UPDATE transactions
              SET account_id = ?, 
@@ -96,18 +118,25 @@ export const updateTransaction = async (req, res, next) => {
                  item_id = ?, 
                  borrow_date = ?, 
                  due_date = IFNULL(?, DATE_ADD(?, INTERVAL 7 DAY)), 
-                 status = ? ,
-                 created_at = ?
+                 status = ?, 
+                 created_at = ?,
+                 return_date = ?
              WHERE id = ?`,
-            [account_id, transaction_id, item_id, borrow_date, due_date, borrow_date, status, created_at, id]
+            [account_id, transaction_id, item_id, borrow_date, due_date, borrow_date, newStatus, created_at, return_date || null, id]
         );
-        res.status(200).json({ msg: `Transaction with id of ${id} is updated` })
+
+        // Fetch the updated transaction to include in the response
+        const [updatedTransaction] = await db.query('SELECT * FROM transactions WHERE id = ?', [id]);
+
+        res.status(200).json({ msg: `Transaction with id of ${id} is updated`, transaction: updatedTransaction });
     } catch (e) {
-        const error = new Error('Error Updating transaction ')
-        error.status = 400
-        return next(error)
+        const error = new Error('Error Updating transaction');
+        error.status = 400;
+        return next(error);
     }
-}
+};
+
+
 
 export const deleteTransaction = async (req, res, next) => {
     const id = parseInt(req.params.id)
