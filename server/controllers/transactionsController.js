@@ -1,5 +1,6 @@
 import db from '../config/database.js';
 import { validationResult } from 'express-validator';
+import moment from 'moment';
 
 export const getTransactions = async (req, res, next) => {
     try {
@@ -11,7 +12,6 @@ export const getTransactions = async (req, res, next) => {
         let sortBy = req.query.sort_by || 'created_at';
         let order = req.query.order && req.query.order.toUpperCase() === 'DESC' ? 'DESC' : 'ASC';
 
-        // Allow sorting only by these fields to prevent SQL injection
         const validSortColumns = ['transaction_id', 'item_id', 'borrow_date', 'due_date', 'status', 'created_at'];
         if (!validSortColumns.includes(sortBy)) {
             sortBy = 'created_at';
@@ -27,7 +27,6 @@ export const getTransactions = async (req, res, next) => {
             params.push(search, search, search, search, search);
         }
 
-        // Use backticks to prevent SQL injection on column names
         query += ` ORDER BY \`${sortBy}\` ${order}`;
 
         if (limit) {
@@ -38,7 +37,16 @@ export const getTransactions = async (req, res, next) => {
         const [transactions] = await db.query(query, params);
         const [[{ total }]] = await db.query(countQuery, search ? [search, search, search, search, search] : []);
 
-        res.status(200).json({ records: transactions, total });
+        // Format the dates properly
+        const formattedTransactions = transactions.map(transaction => ({
+            ...transaction,
+            borrow_date: transaction.borrow_date ? moment(transaction.borrow_date).format('YYYY-MM-DD HH:mm:ss') : null,
+            due_date: transaction.due_date ? moment(transaction.due_date).format('YYYY-MM-DD HH:mm:ss') : null,
+            return_date: transaction.return_date ? moment(transaction.return_date).format('YYYY-MM-DD HH:mm:ss') : null,
+            created_at: transaction.created_at ? moment(transaction.created_at).format('YYYY-MM-DD HH:mm:ss') : null,
+        }));
+
+        res.status(200).json({ records: formattedTransactions, total });
     } catch (e) {
         console.error("Database Error:", e);
         return next(new Error("Unable to fetch transactions"));
@@ -54,7 +62,16 @@ export const getTransaction = async (req, res, next) => {
             return res.status(404).json({ msg: 'Transaction not found' });
         }
 
-        res.status(200).json(transaction[0]);
+        // Format the date fields
+        const formattedTransaction = {
+            ...transaction[0],
+            borrow_date: transaction[0].borrow_date ? moment(transaction[0].borrow_date).format('YYYY-MM-DD HH:mm:ss') : null,
+            due_date: transaction[0].due_date ? moment(transaction[0].due_date).format('YYYY-MM-DD HH:mm:ss') : null,
+            return_date: transaction[0].return_date ? moment(transaction[0].return_date).format('YYYY-MM-DD HH:mm:ss') : null,
+            created_at: transaction[0].created_at ? moment(transaction[0].created_at).format('YYYY-MM-DD HH:mm:ss') : null,
+        };
+
+        res.status(200).json(formattedTransaction);
     } catch (e) {
         console.error("Error fetching transaction:", e);
         return next(new Error('Error fetching transaction'));
@@ -96,21 +113,25 @@ export const updateTransaction = async (req, res, next) => {
     }
 
     try {
-        // Determine the new status based on return_date and due_date
+        const formattedBorrowDate = borrow_date ? moment(borrow_date).format('YYYY-MM-DD HH:mm:ss') : null;
+        const formattedDueDate = due_date ? moment(due_date).format('YYYY-MM-DD HH:mm:ss') : null;
+        const formattedCreatedAt = created_at ? moment(created_at).format('YYYY-MM-DD HH:mm:ss') : null;
+        const formattedReturnDate = return_date && return_date !== "null" ? moment(return_date).format('YYYY-MM-DD HH:mm:ss') : null;
+
         let newStatus = 'pending';
 
-        if (return_date && return_date !== "null") {
-            const currentDate = new Date(return_date);
-            const dueDate = new Date(due_date);
+        if (formattedReturnDate) {
+            const returnMoment = moment(formattedReturnDate);
+            const dueMoment = moment(formattedDueDate || moment(formattedBorrowDate).add(7, 'days'));
             let dayDifference = 0;
 
-            if (currentDate < dueDate) {
-                dayDifference = Math.floor((dueDate - currentDate) / (1000 * 60 * 60 * 24));
+            if (returnMoment.isBefore(dueMoment)) {
+                dayDifference = dueMoment.diff(returnMoment, 'days');
                 newStatus = `returned early (${dayDifference} days)`;
-            } else if (currentDate.toDateString() === dueDate.toDateString()) {
+            } else if (returnMoment.isSame(dueMoment, 'day')) {
                 newStatus = 'returned on time';
-            } else if (currentDate > dueDate) {
-                dayDifference = Math.floor((currentDate - dueDate) / (1000 * 60 * 60 * 24));
+            } else {
+                dayDifference = returnMoment.diff(dueMoment, 'days');
                 newStatus = `overdue (${dayDifference} days)`;
             }
         }
@@ -121,21 +142,19 @@ export const updateTransaction = async (req, res, next) => {
                  transaction_id = ?, 
                  item_id = ?, 
                  borrow_date = ?, 
-                 due_date = IFNULL(?, DATE_ADD(?, INTERVAL 7 DAY)), 
+                 due_date = IFNULL(?, DATE_ADD(?, INTERVAL 7 DAY)),
                  status = ?, 
-                 created_at = ?,
+                 created_at = ?, 
                  return_date = ?
              WHERE id = ?`,
-            [account_id, transaction_id, item_id, borrow_date, due_date, borrow_date, newStatus, created_at, return_date || null, id]
+            [account_id, transaction_id, item_id, formattedBorrowDate, formattedDueDate, formattedBorrowDate, newStatus, formattedCreatedAt, formattedReturnDate, id]
         );
 
         if (updateResult.affectedRows === 0) {
             return res.status(404).json({ msg: `Transaction with id ${id} not found` });
         }
 
-        const [updatedTransaction] = await db.query('SELECT * FROM transactions WHERE id = ?', [id]);
-
-        res.status(200).json({ msg: `Transaction with id ${id} is updated`, transaction: updatedTransaction[0] });
+        res.status(200).json({ msg: `Transaction with id ${id} is updated` });
     } catch (e) {
         console.error("Error updating transaction:", e);
         return next(new Error('Error updating transaction'));

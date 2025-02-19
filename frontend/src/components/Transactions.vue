@@ -109,6 +109,20 @@ const toggle = (transactionId) => {
     openTransaction.value = openTransaction.value === transactionId ? null : transactionId;
 };
 
+const formatDate = (dateString) => {
+    if (!dateString) return "Invalid Date";
+
+    const date = new Date(dateString);
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    const hours = String(date.getHours()).padStart(2, "0");
+    const minutes = String(date.getMinutes()).padStart(2, "0");
+    const seconds = String(date.getSeconds()).padStart(2, "0");
+
+    return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+};
+
 onMounted(() => {
     getTransactions();
 });
@@ -166,7 +180,7 @@ onMounted(() => {
                             <div class="flex flex-col flex-1 text-xs">
                                 <p><span>Account ID:</span> {{ transaction.account_id.toUpperCase() }}</p>
                                 <p><span>Item ID:</span> {{ transaction.item_id.toUpperCase() }}</p>
-                                <p><span>Borrow Date:</span> {{ transaction.borrow_date }}</p>
+                                <p><span>Borrow Date:</span> {{ formatDate(transaction.borrow_date) }}</p>
                                 <p class="text-xs mb-3"><span>Due Date:</span> {{ transaction.due_date }}</p>
                                 <p>Status: <span :class="{
                                     'text-green-800': transaction.status.split(' ')[0] === 'returned',

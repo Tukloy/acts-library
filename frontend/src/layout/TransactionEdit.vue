@@ -66,12 +66,14 @@ const getItems = async () => {
 const errorMessage = ref('');
 
 const submitForm = async () => {
-    let borrowDate = new Date(form.borrow_date);
+    // let borrowDate = new Date(form.borrow_date);
 
-    // Add 7 days
-    borrowDate.setDate(borrowDate.getDate() + 7);
+    // // Add 7 days
+    // borrowDate.setDate(borrowDate.getDate() + 7);
 
-    form.due_date = borrowDate.toISOString();
+    // form.due_date = borrowDate.toISOString();
+    let borrowDate = new Date(form.borrow_date)
+    form.borrow_date = borrowDate.toISOString();
 
     const updatedTransactions = {
         id: form.id,
@@ -80,7 +82,6 @@ const submitForm = async () => {
         item_id: form.item_id.toLowerCase(),
         created_at: form.created_at,
         borrow_date: form.borrow_date,
-        due_date: form.due_date,
         status: form.status.toLowerCase()
     };
 
@@ -91,6 +92,7 @@ const submitForm = async () => {
 
     try {
         await axios.put(`/api/transactions/${form.id}`, updatedTransactions)
+        console.log(form.id, updatedTransactions)
         emit('emit-transaction-updated')
         toast.success('Transactions updated successfully')
         emit('emit-close-edit');
@@ -155,7 +157,7 @@ onMounted(() => {
                             <select v-model="form.item_id"
                                 class="border border-1 w-full border-gray-200 p-2 outline-none focus:border-green-400 cursor-pointer">
                                 <option v-for="item in state.items" :key="item.id" :value="item.item_id">{{ item.item_id
-                                }}</option>
+                                    }}</option>
                             </select>
                         </div>
                         <p class="bg-gray-100 text-green-800 p-2 mb-2">Date Information</p>
