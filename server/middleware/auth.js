@@ -19,15 +19,18 @@ passport.use(
     })
   );
 
-passport.serializeUser((user, done) => done(null, user.id));
-passport.deserializeUser(async (id, done) => {
+  passport.serializeUser((user, done) => {
+    done(null, user.account_id); // Ensure this matches your DB column
+});
+
+passport.deserializeUser(async (account_id, done) => {
     try {
-      const [rows] = await db.query("SELECT * FROM accounts WHERE id = ?", [id]);
-      done(null, rows[0]);
+        const [rows] = await db.query("SELECT * FROM accounts WHERE account_id = ?", [account_id]);
+        done(null, rows[0]);
     } catch (err) {
-      done(err);
+        done(err);
     }
-  });
+});
 
   export function ensureAuthenticated(req, res, next) {
     if (req.isAuthenticated()) {

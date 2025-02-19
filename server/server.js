@@ -1,6 +1,7 @@
 import express from "express";
 import "dotenv/config.js";
 import session from "express-session";
+import cors from "cors";
 import { ensureAuthenticated, passport } from "./middleware/auth.js";
 
 // Routes
@@ -22,6 +23,12 @@ const port = process.env.PORT || 5000;
 // Body Parser
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+app.use(
+  cors({
+    credentials: true,
+  })
+);
 
 // Session Configuration
 app.use(
