@@ -116,7 +116,7 @@ onMounted(() => {
 
 <template>
     <TransactionEdit :toggleEdit="toggleEdit" @emit-close-edit="toggleEdit = false"
-        :selectedTransaction="state.selectedTransaction" />
+        :selectedTransaction="state.selectedTransaction" @emit-transaction-updated="getTransactions()" />
     <div class="p-5 container mx-auto w-full h-full">
         <p class="text-2xl mb-4">Transactions</p>
         <div>
@@ -143,17 +143,22 @@ onMounted(() => {
                     <i class="pi pi-spinner animate-spin text-6xl text-green-800"></i>
                 </div>
                 <div v-for="(transaction, index) in state.transactions" :key="transaction.transaction_id"
-                    class="border-1 border-gray-200 relative">
-                    <i class="absolute top-3 right-3 h-3 w-3 rounded-full" :class="{
-                        'bg-green-400': transaction.status.split(' ')[0] === 'returned',
-                        'bg-yellow-400': transaction.status.split(' ')[0] === 'pending',
-                        'bg-red-400': transaction.status.split(' ')[0] === 'overdued'
-                    }"></i>
+                    class="border-1 border-gray-200">
                     <div @click="toggle(transaction.transaction_id)"
                         :class="['flex justify-between w-full cursor-pointer p-2 hover:bg-gray-100', openTransaction === transaction.transaction_id ? 'bg-green-100' : index % 2 === 0 ? 'bg-white' : 'bg-gray-50']">
-                        <p><span class="font-medium mr-2">Transaction ID:</span> {{
-                            transaction.transaction_id.toUpperCase() }}</p>
-                        <p class="mr-8 font-medium">Status</p>
+                        <div class="flex items-center">
+                            <p class="pr-2 border-r mr-2 border-gray-200 text-xs"> {{ index + 1 }}</p>
+                            <p><span class="font-medium mr-2">Transaction ID:</span> {{
+                                transaction.transaction_id.toUpperCase() }}</p>
+                        </div>
+                        <div class="flex items-center gap-x-4">
+                            <p class="font-medium">Status</p>
+                            <i class="right-3 h-3 w-3 rounded-full" :class="{
+                                'bg-green-400': transaction.status.split(' ')[0] === 'returned',
+                                'bg-yellow-400': transaction.status.split(' ')[0] === 'pending',
+                                'bg-red-400': transaction.status.split(' ')[0] === 'overdued'
+                            }"></i>
+                        </div>
                     </div>
                     <transition name="slide">
                         <div v-if="openTransaction === transaction.transaction_id"
@@ -185,7 +190,7 @@ onMounted(() => {
                     <span class="font-medium">{{ (state.currentPage - 1) * state.pageSize + 1 }}</span>
                     to
                     <span class="font-medium">{{ Math.min(state.currentPage * state.pageSize, state.totalRecords)
-                        }}</span>
+                    }}</span>
                     of
                     <span class="font-medium">{{ state.totalRecords }}</span>
                     results

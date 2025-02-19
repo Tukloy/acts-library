@@ -57,15 +57,7 @@ const submitForm = async () => {
         form.isLoading = true;
         await axios.put(`/api/books/${form.id}`, updatedBook);
         emit('emit-book-updated')
-        console.log(updatedBook)
 
-        form.id = '';
-        form.book_id = '';
-        form.author_name = '';
-        form.title_name = '';
-        form.type = '';
-        form.status = '';
-        form.created_at = '';
         toast.success('Book updated successfully!');
 
         emit('emit-close-edit')
