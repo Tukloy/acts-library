@@ -156,7 +156,7 @@ onMounted(() => {
                             <i class="right-3 h-3 w-3 rounded-full" :class="{
                                 'bg-green-400': transaction.status.split(' ')[0] === 'returned',
                                 'bg-yellow-400': transaction.status.split(' ')[0] === 'pending',
-                                'bg-red-400': transaction.status.split(' ')[0] === 'overdued'
+                                'bg-red-400': transaction.status.split(' ')[0] === 'overdue'
                             }"></i>
                         </div>
                     </div>
@@ -171,7 +171,7 @@ onMounted(() => {
                                 <p>Status: <span :class="{
                                     'text-green-800': transaction.status.split(' ')[0] === 'returned',
                                     'text-yellow-800': transaction.status.split(' ')[0] === 'pending',
-                                    'text-red-800': transaction.status.split(' ')[0] === 'overdued'
+                                    'text-red-800': transaction.status.split(' ')[0] === 'overdue'
                                 }">{{ transaction.status.toUpperCase() }}</span></p>
                             </div>
                             <div class="flex items-center gap-x-2">
@@ -190,7 +190,7 @@ onMounted(() => {
                     <span class="font-medium">{{ (state.currentPage - 1) * state.pageSize + 1 }}</span>
                     to
                     <span class="font-medium">{{ Math.min(state.currentPage * state.pageSize, state.totalRecords)
-                    }}</span>
+                        }}</span>
                     of
                     <span class="font-medium">{{ state.totalRecords }}</span>
                     results
