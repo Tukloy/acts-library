@@ -1,9 +1,13 @@
 <script setup>
 import axios from "axios";
 import TransactionEdit from "@/layout/TransactionEdit.vue";
+import ConfirmModal from "@/reusable/ConfirmModal.vue";
+import { useToast } from "vue-toastification";
 import { ref, reactive, onMounted, computed, watch } from "vue";
 
 const toggleEdit = ref(false)
+const toggleDelete = ref(false)
+const toast = useToast();
 
 const state = reactive({
     transactions: [],
@@ -45,6 +49,29 @@ const getTransactions = async () => {
         state.isLoading = false;
     }
 };
+
+const deleteTransaction = async () => {
+    if (!state.selectedTransaction) {
+        toast.error('No transaction selected for deletion');
+        return;
+    }
+
+    try {
+        state.isLoading = true
+        await axios.delete(`/api/transactions/${state.selectedTransaction.id}`);
+        toast.success('Book deleted successfully');
+
+        state.selectedTransaction = null;
+        toggleDelete.value = false;
+
+        getTransactions();
+    } catch (error) {
+        toast.error('Failed to delete Book');
+        console.error(error);
+    } finally {
+        state.isLoading = false;
+    }
+}
 
 const selectTransaction = (transaction) => {
     state.selectedTransaction = transaction;
@@ -131,6 +158,8 @@ onMounted(() => {
 <template>
     <TransactionEdit :toggleEdit="toggleEdit" @emit-close-edit="toggleEdit = false"
         :selectedTransaction="state.selectedTransaction" @emit-transaction-updated="getTransactions()" />
+    <ConfirmModal :toggleDelete="toggleDelete" @emit-close-delete="toggleDelete = false"
+        @emit-confirm-delete="deleteTransaction()" questionText="Are you sure?" confirmText="Delete" />
     <div class="p-5 container mx-auto w-full h-full">
         <p class="text-2xl mb-4">Transactions</p>
         <div>
@@ -192,6 +221,7 @@ onMounted(() => {
                                 <button type="button" @click="selectTransaction(transaction)"
                                     class="pi pi-pencil bg-blue-400 text-gray-50 p-1 rounded-md text-[10px] hover:bg-blue-500 transition ease duration-200 cursor-pointer"></button>
                                 <button type="button"
+                                    @click="state.selectedTransaction = transaction; toggleDelete = true"
                                     class="pi pi-trash bg-red-400 text-gray-50 p-1 rounded-md text-[10px] hover:bg-red-500 transition ease duration-200 cursor-pointer"></button>
                             </div>
                         </div>
@@ -204,7 +234,7 @@ onMounted(() => {
                     <span class="font-medium">{{ (state.currentPage - 1) * state.pageSize + 1 }}</span>
                     to
                     <span class="font-medium">{{ Math.min(state.currentPage * state.pageSize, state.totalRecords)
-                        }}</span>
+                    }}</span>
                     of
                     <span class="font-medium">{{ state.totalRecords }}</span>
                     results
