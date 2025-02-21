@@ -8,6 +8,7 @@ import AcademicPaperCreate from '@/layout/AcademicPaperCreate.vue';
 import Books from '@/components/Books.vue';
 import BookCreate from '@/layout/BookCreate.vue';
 import Transactions from '@/components/Transactions.vue';
+import Activities from '@/components/Activities.vue';
 import axios from 'axios';
 
 const router = createRouter({
@@ -52,6 +53,11 @@ const router = createRouter({
           path: '/transactions',
           name: 'transactions',
           component: Transactions
+        },
+        {
+          path: '/activities',
+          name: 'activities',
+          component: Activities,
         },
         {
           path: '/:catchAll(.*)',

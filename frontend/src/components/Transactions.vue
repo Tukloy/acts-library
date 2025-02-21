@@ -4,6 +4,7 @@ import TransactionEdit from "@/layout/TransactionEdit.vue";
 import ConfirmModal from "@/reusable/ConfirmModal.vue";
 import { useToast } from "vue-toastification";
 import { ref, reactive, onMounted, computed, watch } from "vue";
+import * as XLSX from 'xlsx';
 
 const toggleEdit = ref(false)
 const toggleDelete = ref(false)
@@ -77,6 +78,29 @@ const selectTransaction = (transaction) => {
     state.selectedTransaction = transaction;
     toggleEdit.value = true;
 }
+
+const downloadExcel = () => {
+    if (state.transactions.length === 0) {
+        toast.error("No data available to export.");
+        return;
+    }
+
+    const worksheet = XLSX.utils.json_to_sheet(state.transactions.map(transaction => ({
+        "Transaction ID": transaction.transaction_id.toUpperCase(),
+        "Account ID": transaction.account_id.toUpperCase(),
+        "Item ID": transaction.item_id.toUpperCase(),
+        "Borrow Date": transaction.borrow_date,
+        "Due Date": transaction.due_date,
+        "Return Date": transaction.return_date,
+        "Status": transaction.status.toUpperCase()
+    })));
+
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Transactions");
+
+    XLSX.writeFile(workbook, "Transactions.xlsx");
+    toast.success('Excel file downloaded successfully');
+};
 
 const nextPage = () => {
     if (state.currentPage < totalPages.value) {
@@ -234,7 +258,7 @@ onMounted(() => {
                     <span class="font-medium">{{ (state.currentPage - 1) * state.pageSize + 1 }}</span>
                     to
                     <span class="font-medium">{{ Math.min(state.currentPage * state.pageSize, state.totalRecords)
-                    }}</span>
+                        }}</span>
                     of
                     <span class="font-medium">{{ state.totalRecords }}</span>
                     results
