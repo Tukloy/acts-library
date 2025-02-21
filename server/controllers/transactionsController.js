@@ -161,6 +161,45 @@ export const updateTransaction = async (req, res, next) => {
     }
 };
 
+export const uploadTransctions = async (req, res) => {
+    try {
+        const transactions = req.body.transactions;
+        if (!transactions || transactions.length === 0) {
+            return res.status(400).json({ error: "No data received" });
+        }
+
+        const formattedTransactions = transactions.map(transaction => {
+            const borrowDate = transaction.borrow_date ? moment(transaction.borrow_date).format('YYYY-MM-DD HH:mm:ss') : moment().format('YYYY-MM-DD HH:mm:ss');
+            const dueDate = transaction.due_date ? moment(transaction.due_date).format('YYYY-MM-DD HH:mm:ss') : moment(borrowDate).add(7, 'days').format('YYYY-MM-DD HH:mm:ss');
+            const status = transaction.status ? transaction.status.toString().toLowerCase() : 'pending';
+
+            return {
+                account_id: (transaction.account_id || '').toString().toLowerCase(),
+                transaction_id: (transaction.transaction_id || '').toString().toLowerCase(),
+                item_id: (transaction.item_id || '').toString().toLowerCase(),
+                borrow_date: borrowDate,
+                due_date: dueDate,
+                return_date: transaction.return_date ? moment(transaction.return_date).format('YYYY-MM-DD HH:mm:ss') : null,
+                status: status,
+            };
+        });
+
+        // Insert each transaction into the database
+        for (const transaction of formattedTransactions) {
+            await db.query(
+                `INSERT INTO transactions (account_id, transaction_id, item_id, borrow_date, due_date, return_date, status) VALUES (?, ?, ?, ?, ?, ?, ?)`,
+                [transaction.account_id, transaction.transaction_id, transaction.item_id, transaction.borrow_date, transaction.due_date, transaction.return_date, transaction.status]
+            );
+        }
+
+        res.json({ message: "Upload successful!" });
+    } catch (error) {
+        console.error("Upload error:", error);
+        res.status(500).json({ error: "Failed to upload data" });
+    }
+};
+
+
 export const deleteTransaction = async (req, res, next) => {
     const id = parseInt(req.params.id);
     try {

@@ -4,6 +4,7 @@ import TransactionEdit from "@/layout/TransactionEdit.vue";
 import ConfirmModal from "@/reusable/ConfirmModal.vue";
 import { useToast } from "vue-toastification";
 import { ref, reactive, onMounted, computed, watch } from "vue";
+import moment from 'moment';
 import * as XLSX from 'xlsx';
 
 const toggleEdit = ref(false)
@@ -101,6 +102,66 @@ const downloadExcel = () => {
     XLSX.writeFile(workbook, "Transactions.xlsx");
     toast.success('Excel file downloaded successfully');
 };
+
+const uploadExcel = async (event) => {
+    const file = event.target.files[0];
+    if (!file) {
+        toast.error('No file selected');
+        return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = async (e) => {
+        try {
+            const data = new Uint8Array(e.target.result);
+            const workbook = XLSX.read(data, { type: 'array' });
+            const sheetName = workbook.SheetNames[0];
+            const sheet = workbook.Sheets[sheetName];
+            const jsonData = XLSX.utils.sheet_to_json(sheet);
+
+            const formatExcelDate = (excelDate) => {
+                if (typeof excelDate === 'number') {
+                    // Excel's base date is January 1, 1900
+                    const excelEpoch = new Date(1899, 11, 30); // Excel starts from Dec 30, 1899
+                    const date = new Date(excelEpoch.getTime() + excelDate * 24 * 60 * 60 * 1000);
+
+                    // Format date as YYYY-MM-DD HH:mm:ss
+                    const year = date.getFullYear();
+                    const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are 0-indexed
+                    const day = String(date.getDate()).padStart(2, '0');
+                    const hours = String(date.getHours()).padStart(2, '0');
+                    const minutes = String(date.getMinutes()).padStart(2, '0');
+                    const seconds = String(date.getSeconds()).padStart(2, '0');
+
+                    return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+                }
+                return excelDate; // If already a string, return as is
+            };
+            // Proper formatting matching backend expectations
+            const formattedData = jsonData.map(row => ({
+                transaction_id: row["Transaction ID"] || '',
+                account_id: row["Account ID"] || '',
+                item_id: row["Item ID"] || '',
+                borrow_date: formatExcelDate(row["Borrow Date"]),
+                due_date: formatExcelDate(row["Due Date"]),
+                return_date: formatExcelDate(row["Return Date"]),
+                status: row["Status"] || ''
+            }));
+
+            // Send data to API for database insertion
+            await axios.post('/api/transactions/upload', { transactions: formattedData });
+
+            toast.success('File uploaded successfully!');
+            getTransactions(); // Refresh data list
+        } catch (error) {
+            console.error('Upload error:', error);
+            toast.error('Failed to upload Excel file');
+        }
+    };
+
+    reader.readAsArrayBuffer(file);
+};
+
 
 const nextPage = () => {
     if (state.currentPage < totalPages.value) {
