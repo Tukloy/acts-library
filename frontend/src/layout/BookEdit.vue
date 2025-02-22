@@ -56,6 +56,7 @@ const submitForm = async () => {
     try {
         form.isLoading = true;
         await axios.put(`/api/books/${form.id}`, updatedBook);
+        // console.log(updatedBook);
         emit('emit-book-updated')
 
         toast.success('Book updated successfully!');

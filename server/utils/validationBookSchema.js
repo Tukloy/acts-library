@@ -124,10 +124,6 @@ export const updateBookSchema = {
     },
     type: {
         isLength: {
-            options: {
-                min: 1,
-                max: 20
-            },
             errorMessage: 'Type should be between 1 and 20 characters long'
         },
         notEmpty: {

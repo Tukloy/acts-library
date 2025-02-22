@@ -61,14 +61,14 @@ const deleteTransaction = async () => {
     try {
         state.isLoading = true
         await axios.delete(`/api/transactions/${state.selectedTransaction.id}`);
-        toast.success('Book deleted successfully');
+        toast.success('Transaction deleted successfully');
 
         state.selectedTransaction = null;
         toggleDelete.value = false;
 
         getTransactions();
     } catch (error) {
-        toast.error('Failed to delete Book');
+        toast.error('Failed to delete Transaction');
         console.error(error);
     } finally {
         state.isLoading = false;
@@ -319,7 +319,7 @@ onMounted(() => {
                     <span class="font-medium">{{ (state.currentPage - 1) * state.pageSize + 1 }}</span>
                     to
                     <span class="font-medium">{{ Math.min(state.currentPage * state.pageSize, state.totalRecords)
-                        }}</span>
+                    }}</span>
                     of
                     <span class="font-medium">{{ state.totalRecords }}</span>
                     results

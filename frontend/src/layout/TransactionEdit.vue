@@ -66,12 +66,6 @@ const getItems = async () => {
 const errorMessage = ref('');
 
 const submitForm = async () => {
-    // let borrowDate = new Date(form.borrow_date);
-
-    // // Add 7 days
-    // borrowDate.setDate(borrowDate.getDate() + 7);
-
-    // form.due_date = borrowDate.toISOString();
     let borrowDate = new Date(form.borrow_date)
     form.borrow_date = borrowDate.toISOString();
 
@@ -157,7 +151,7 @@ onMounted(() => {
                             <select v-model="form.item_id"
                                 class="border border-1 w-full border-gray-200 p-2 outline-none focus:border-green-400 cursor-pointer">
                                 <option v-for="item in state.items" :key="item.id" :value="item.item_id">{{ item.item_id
-                                    }}</option>
+                                }}</option>
                             </select>
                         </div>
                         <p class="bg-gray-100 text-green-800 p-2 mb-2">Date Information</p>
