@@ -3,12 +3,48 @@ import { validationResult } from 'express-validator'
 
 export const getActivities = async (req, res, next) => {
     try {
-      const [activities] = await db.query('SELECT * FROM activities')
-      res.status(200).json(activities)
-    } catch (error) {
-        console.error('Error Fetching Activities', error)
+        let limit = parseInt(req.query.limit, 10);
+        const offset = parseInt(req.query.offset, 10) || 0;
+        const search = req.query.search ? `%${req.query.search}%` : null;
+        let sortBy = req.query.sort_by || 'created_at';
+        let order = req.query.order && req.query.order.toUpperCase() === 'DESC' ? 'DESC' : 'ASC';
+
+        const validSortColumns = ['account_id', 'activity', 'created_at', 'updated_at'];
+        if (!validSortColumns.includes(sortBy)) {
+            sortBy = 'created_at';
+        }
+
+        let query = `SELECT * FROM activities`;
+        let countQuery = `SELECT COUNT(*) AS total FROM activities`;
+        let params = [];
+
+        if (search) {
+            query += ` WHERE account_id LIKE ? OR activity LIKE ? OR created_at LIKE ? OR updated_at LIKE ?`;
+            countQuery += ` WHERE account_id LIKE ? OR activity LIKE ? OR created_at LIKE ? OR updated_at LIKE ?`;
+            params.push(search, search, search, search, search, search);
+        }
+
+        query += ` ORDER BY ${sortBy} ${order}`;
+
+        if (limit && limit > 0) {
+            query += ` LIMIT ? OFFSET ?`;
+            params.push(limit, offset);
+        }
+
+        const [activities] = await db.query(query, params);
+        const [[{ total }]] = await db.query(countQuery, search ? [search, search, search, search, search, search] : []);
+
+        res.status(200).json({
+            records: activities,
+            total: total
+        });
+    } catch (e) {
+        console.error("Database Error:", e);
+        const error = new Error("Unable to fetch activities");
+        error.status = 500;
+        return next(error);
     }
-}
+};
 
 export const getActivity = async (req, res, next) => {
     const id = parseInt(req.params.id)
