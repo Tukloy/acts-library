@@ -2,6 +2,10 @@
 import axios from 'axios'
 import { reactive, onMounted, computed, watch } from 'vue'
 import VueDatePicker from '@vuepic/vue-datepicker';
+import { useToast } from 'vue-toastification';
+import * as XLSX from 'xlsx';
+
+const toast = useToast()
 
 const state = reactive({
     activities: [],
@@ -49,6 +53,53 @@ const getActivities = async () => {
         console.error(error);
     } finally {
         state.isLoading = false;
+    }
+};
+
+const downloadExcel = async () => {
+    try {
+        const response = await axios.get('/api/activities', {
+            params: {
+                limit: state.totalRecords, // Fetch all records
+                sort_by: state.sortBy,
+                order: state.order
+            }
+        });
+
+        const activities = response.data.records;
+
+        // Map account names from the account list using account_id
+        const activitiesWithAccountNames = activities.map(activity => {
+            const matchedAccount = state.accounts.find(account => account.account_id === activity.account_id);
+            return {
+                "Account ID": activity.account_id.toUpperCase(),
+                "Account Name": matchedAccount ? matchedAccount.name.toUpperCase() : 'Unknown',
+                "Activity": activity.activity.toUpperCase(),
+                "Time In": formatDate(activity.created_at),
+                "Time Out": formatDate(activity.updated_at),
+            };
+        });
+
+        // Convert Data to Excel Format
+        const worksheet = XLSX.utils.json_to_sheet(activitiesWithAccountNames);
+
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, "Activities");
+
+        // Create Excel File and Trigger Download
+        const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
+        const blob = new Blob([excelBuffer], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.download = "activities.xlsx";
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+
+        toast.success('Excel file downloaded successfully!');
+    } catch (error) {
+        console.error('Download error:', error);
+        toast.error('Failed to download Excel file');
     }
 };
 
