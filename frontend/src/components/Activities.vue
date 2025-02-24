@@ -1,6 +1,7 @@
 <script setup>
 import axios from 'axios'
 import { reactive, onMounted, computed, watch } from 'vue'
+import VueDatePicker from '@vuepic/vue-datepicker';
 
 const state = reactive({
     activities: [],
@@ -12,7 +13,8 @@ const state = reactive({
     totalRecords: 0,
     sortBy: 'created_at',
     order: 'DESC',
-    searchQuery: ''
+    searchQuery: '',
+    dateRange: null
 });
 
 const totalPages = computed(() => Math.ceil(state.totalRecords / state.pageSize));
@@ -24,18 +26,23 @@ const getActivities = async () => {
         const sortBy = state.sortBy || 'created_at';
         const order = state.order || 'DESC';
 
-        const response = await axios.get(`/api/activities`, {
-            params: {
-                limit: state.pageSize,
-                offset: offset,
-                search: state.searchQuery,
-                sort_by: sortBy,
-                order: order
-            }
-        });
-        const resAccounts = await axios.get('/api/accounts')
-        state.accounts = resAccounts.data
+        let params = {
+            limit: state.pageSize,
+            offset: offset,
+            search: state.searchQuery,
+            sort_by: sortBy,
+            order: order
+        };
 
+        // Add date filtering if a range is selected
+        if (state.dateRange && state.dateRange.length === 2) {
+            params.start_date = state.dateRange[0].toISOString();
+            params.end_date = state.dateRange[1].toISOString();
+        }
+
+        const response = await axios.get('/api/activities', { params });
+        const resAccounts = await axios.get('/api/accounts');
+        state.accounts = resAccounts.data;
         state.activities = response.data.records;
         state.totalRecords = response.data.total;
     } catch (error) {
@@ -103,7 +110,12 @@ const visiblePages = computed(() => {
 
 watch(() => state.searchQuery, () => {
     state.currentPage = 1;
-    getAcademicPapers();
+    getActivities();
+});
+
+watch(() => state.dateRange, () => {
+    state.currentPage = 1;
+    getActivities();
 });
 
 
@@ -116,12 +128,13 @@ onMounted(() => {
         <div class="p-5 container mx-auto w-full h-full">
             <p class="text-2xl mb-4">Activities</p>
             <div class="">
-                <div class="flex items-center justify-between mb-2  text-sm">
+                <div class="flex items-center justify-between mb-2 gap-x-4  text-sm">
                     <div class="flex items-center">
                         <p class="mr-1">Search:</p>
-                        <input
+                        <input v-model="state.searchQuery"
                             class="border border-1 border-gray-200 bg-white rounded-md pr-4 pl-2 py-1 outline-none focus:border-green-500 mr-4"
                             type="text" placeholder="Search here...">
+                        <VueDatePicker v-model="state.dateRange" range placeholder="Select date range" />
                     </div>
                     <div class="flex items-center gap-x-2">
                         <label
@@ -225,3 +238,9 @@ onMounted(() => {
         </div>
     </div>
 </template>
+<style scoped>
+::v-deep(.dp__input) {
+    height: 30px;
+    font-size: 12px;
+}
+</style>

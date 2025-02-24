@@ -8,31 +8,42 @@ export const getActivities = async (req, res, next) => {
         const search = req.query.search ? `%${req.query.search}%` : null;
         let sortBy = req.query.sort_by || 'created_at';
         let order = req.query.order && req.query.order.toUpperCase() === 'DESC' ? 'DESC' : 'ASC';
+        const startDate = req.query.start_date;
+        const endDate = req.query.end_date;
 
         const validSortColumns = ['account_id', 'activity', 'created_at', 'updated_at'];
         if (!validSortColumns.includes(sortBy)) {
             sortBy = 'created_at';
         }
 
-        let query = `SELECT * FROM activities`;
-        let countQuery = `SELECT COUNT(*) AS total FROM activities`;
+        let query = `SELECT * FROM activities WHERE 1=1`;
+        let countQuery = `SELECT COUNT(*) AS total FROM activities WHERE 1=1`;
         let params = [];
 
+        // Search filter
         if (search) {
-            query += ` WHERE account_id LIKE ? OR activity LIKE ? OR created_at LIKE ? OR updated_at LIKE ?`;
-            countQuery += ` WHERE account_id LIKE ? OR activity LIKE ? OR created_at LIKE ? OR updated_at LIKE ?`;
-            params.push(search, search, search, search, search, search);
+            query += ` AND (account_id LIKE ? OR activity LIKE ? OR created_at LIKE ? OR updated_at LIKE ?)`;
+            countQuery += ` AND (account_id LIKE ? OR activity LIKE ? OR created_at LIKE ? OR updated_at LIKE ?)`;
+            params.push(search, search, search, search);
         }
 
-        query += ` ORDER BY ${sortBy} ${order}`;
+        // Date range filter
+        if (startDate && endDate) {
+            query += ` AND (created_at BETWEEN ? AND ? OR updated_at BETWEEN ? AND ?)`;
+            countQuery += ` AND (created_at BETWEEN ? AND ? OR updated_at BETWEEN ? AND ?)`;
+            params.push(startDate, endDate, startDate, endDate);
+        }
 
+        // Sorting and pagination
+        query += ` ORDER BY ${sortBy} ${order}`;
         if (limit && limit > 0) {
             query += ` LIMIT ? OFFSET ?`;
             params.push(limit, offset);
         }
 
+        // Execute queries
         const [activities] = await db.query(query, params);
-        const [[{ total }]] = await db.query(countQuery, search ? [search, search, search, search, search, search] : []);
+        const [[{ total }]] = await db.query(countQuery, params);
 
         res.status(200).json({
             records: activities,
@@ -45,6 +56,7 @@ export const getActivities = async (req, res, next) => {
         return next(error);
     }
 };
+
 
 export const getActivity = async (req, res, next) => {
     const id = parseInt(req.params.id)
