@@ -41,6 +41,17 @@ export const createTransactionSchema = {
             errorMessage: 'Item ID should be a string'
         }
     },
+    borrow_date: {
+        notEmpty: {
+            errorMessage: 'Borrow date is required'
+        },
+        custom: {
+            options: (value) => {
+                return value && value !== '1970-01-01T00:00:00.000Z';
+            },
+            errorMessage: 'Invalid borrow date selected'
+        }
+    }
 }
 
 export const updateTransactionSchema = {
@@ -89,6 +100,12 @@ export const updateTransactionSchema = {
     borrow_date: {
         notEmpty: {
             errorMessage: 'Borrow date is required'
+        },
+        custom: {
+            options: (value) => {
+                return value && value !== '1970-01-01T00:00:00.000Z';
+            },
+            errorMessage: 'Invalid borrow date selected'
         }
     },
     created_at: {
