@@ -1,7 +1,7 @@
 <script setup>
 import axios from "axios"
 import { reactive, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { RouterLink, useRouter } from 'vue-router'
 import { useToast } from 'vue-toastification'
 import VueDatePicker from '@vuepic/vue-datepicker';
 
@@ -132,7 +132,7 @@ onMounted(() => {
                         <select v-model="form.item_id"
                             class="border border-1 w-full border-gray-200 p-2 outline-none focus:border-green-400 cursor-pointer">
                             <option v-for="item in state.items" :key="item.id" :value="item.item_id">{{ item.item_id
-                                }}</option>
+                            }}</option>
                         </select>
                     </div>
                     <p class="bg-gray-100 text-green-800 p-2 mb-2">Date Information</p>
@@ -152,9 +152,9 @@ onMounted(() => {
                     }" class="border border-1 w-full p-2 outline-none focus:border-green-400 text-center">
                 </div>
                 <div class="flex justify-end gap-x-4">
-                    <button type="button" @click="emit('emit-close-edit')"
+                    <RouterLink to="/transactions"
                         class="text-gray-400 text-sm px-8 py-1 shadow-sm bg-gray-200 rounded-full hover:bg-green-600 hover:text-gray-50 transition ease duration-300 cursor-pointer">
-                        CANCEL</button>
+                        CANCEL</RouterLink>
                     <button type="submit"
                         class="text-green-600 text-sm px-8 py-1 shadow-sm bg-green-200 rounded-full hover:bg-green-600 hover:text-gray-50 transition ease duration-300 cursor-pointer">
                         SAVE</button>
