@@ -79,21 +79,43 @@ export const getTransaction = async (req, res, next) => {
 };
 
 export const createTransaction = async (req, res, next) => {
-    const { account_id, transaction_id, item_id } = req.body;
+    const { account_id, transaction_id, item_id, borrow_date, due_date, created_at, return_date } = req.body;
     const results = validationResult(req);
-    const status = 'pending';
 
     if (!results.isEmpty()) {
         return res.status(400).json({ errors: results.errors.map(error => error.msg) });
     }
 
     try {
+        const formattedBorrowDate = borrow_date ? moment(borrow_date).format('YYYY-MM-DD HH:mm:ss') : moment().format('YYYY-MM-DD HH:mm:ss');
+        const formattedDueDate = due_date ? moment(due_date).format('YYYY-MM-DD HH:mm:ss') : moment(formattedBorrowDate).add(7, 'days').format('YYYY-MM-DD HH:mm:ss');
+        const formattedCreatedAt = created_at ? moment(created_at).format('YYYY-MM-DD HH:mm:ss') : moment().format('YYYY-MM-DD HH:mm:ss');
+        const formattedReturnDate = return_date && return_date !== "null" ? moment(return_date).format('YYYY-MM-DD HH:mm:ss') : null;
+
+        let newStatus = 'pending';
+
+        if (formattedReturnDate) {
+            const returnMoment = moment(formattedReturnDate);
+            const dueMoment = moment(formattedDueDate);
+            let dayDifference = 0;
+
+            if (returnMoment.isBefore(dueMoment)) {
+                dayDifference = dueMoment.diff(returnMoment, 'days');
+                newStatus = `returned early (${dayDifference} days)`;
+            } else if (returnMoment.isSame(dueMoment, 'day')) {
+                newStatus = 'returned on time';
+            } else {
+                dayDifference = returnMoment.diff(dueMoment, 'days');
+                newStatus = `overdue (${dayDifference} days)`;
+            }
+        }
         await db.query(
-            `INSERT INTO transactions (account_id, transaction_id, item_id, status, borrow_date, due_date) 
-             VALUES (?, ?, ?, ?, NOW(), DATE_ADD(NOW(), INTERVAL 7 DAY))`,
-            [account_id, transaction_id, item_id, status]
+            `INSERT INTO transactions (account_id, transaction_id, item_id, borrow_date, due_date, status, created_at, return_date) 
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+            [account_id, transaction_id, item_id, formattedBorrowDate, formattedDueDate, newStatus, formattedCreatedAt, formattedReturnDate]
         );
-        res.status(201).json({ msg: 'Transaction created' });
+
+        res.status(201).json({ msg: 'Transaction created successfully' });
     } catch (e) {
         console.error("Error creating transaction:", e);
         if (e.code === 'ER_DUP_ENTRY') {
@@ -102,6 +124,7 @@ export const createTransaction = async (req, res, next) => {
         return next(new Error('Error creating transaction'));
     }
 };
+
 
 export const updateTransaction = async (req, res, next) => {
     const id = parseInt(req.params.id);

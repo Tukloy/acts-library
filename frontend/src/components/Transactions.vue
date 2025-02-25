@@ -3,6 +3,7 @@ import axios from "axios";
 import TransactionEdit from "@/layout/TransactionEdit.vue";
 import ConfirmModal from "@/reusable/ConfirmModal.vue";
 import { useToast } from "vue-toastification";
+import { RouterLink } from "vue-router"
 import { ref, reactive, onMounted, computed, watch } from "vue";
 import moment from 'moment';
 import * as XLSX from 'xlsx';
@@ -264,6 +265,9 @@ onMounted(() => {
                     <button @click="downloadExcel"
                         class="text-gray-400 text-sm px-8 py-1 shadow-sm bg-gray-200 rounded-full hover:bg-green-600 hover:text-gray-50 transition ease duration-300 cursor-pointer">
                         DOWNLOAD</button>
+                    <RouterLink to="/transactions/create"
+                        class="text-green-600 text-sm px-8 py-1 shadow-sm bg-green-200 rounded-full hover:bg-green-600 hover:text-gray-50 transition ease duration-300 cursor-pointer">
+                        ADD</RouterLink>
                 </div>
             </div>
             <div class="border-1 border-gray-200 bg-white p-5 text-sm relative">

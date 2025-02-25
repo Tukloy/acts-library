@@ -8,6 +8,7 @@ import AcademicPaperCreate from '@/layout/AcademicPaperCreate.vue';
 import Books from '@/components/Books.vue';
 import BookCreate from '@/layout/BookCreate.vue';
 import Transactions from '@/components/Transactions.vue';
+import TransactionCreate from '@/layout/TransactionCreate.vue';
 import Activities from '@/components/Activities.vue';
 import axios from 'axios';
 
@@ -53,6 +54,11 @@ const router = createRouter({
           path: '/transactions',
           name: 'transactions',
           component: Transactions
+        },
+        {
+          path: '/transactions/create',
+          name: 'transactions-create',
+          component: TransactionCreate
         },
         {
           path: '/activities',
