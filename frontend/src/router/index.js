@@ -10,6 +10,7 @@ import BookCreate from '@/layout/BookCreate.vue';
 import Transactions from '@/components/Transactions.vue';
 import TransactionCreate from '@/layout/TransactionCreate.vue';
 import Activities from '@/components/Activities.vue';
+import Accounts from '@/components/Accounts.vue';
 import axios from 'axios';
 
 const router = createRouter({
@@ -64,6 +65,11 @@ const router = createRouter({
           path: '/activities',
           name: 'activities',
           component: Activities,
+        },
+        {
+          path: '/accounts',
+          name: 'accounts',
+          component: Accounts,
         },
         {
           path: '/:catchAll(.*)',
