@@ -135,7 +135,7 @@ onMounted(() => {
                         <select v-model="form.item_id"
                             class="border border-1 w-full border-gray-200 p-2 outline-none focus:border-green-400 cursor-pointer">
                             <option v-for="item in state.items" :key="item.id" :value="item.item_id">{{ item.item_id
-                                }}</option>
+                            }}</option>
                         </select>
                     </div>
                     <p class="bg-gray-100 text-green-800 p-2 mb-2">Date Information</p>
@@ -147,12 +147,6 @@ onMounted(() => {
                         <p class="w-32">Return Date:</p>
                         <VueDatePicker v-model="form.return_date" auto-apply placeholder="Select return date" />
                     </div>
-                    <p class="bg-gray-100 text-green-800 p-2 mb-2">Status</p>
-                    <input v-model="form.status" disabled="true" :class="{
-                        'bg-green-100 border-green-300 text-green-600': form.status.split(' ')[0] === 'returned',
-                        'bg-yellow-100 border-yellow-300 text-yellow-600': form.status.split(' ')[0] === 'pending',
-                        'bg-red-100 border-red-300 text-red-600': form.status.split(' ')[0] === 'overdue'
-                    }" class="border border-1 w-full p-2 outline-none focus:border-green-400 text-center">
                 </div>
                 <div class="flex justify-end gap-x-4">
                     <RouterLink to="/transactions"
