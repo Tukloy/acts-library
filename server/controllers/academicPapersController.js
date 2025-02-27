@@ -46,7 +46,6 @@ export const getAcademicPapers = async (req, res, next) => {
     }
 };
 
-
 export const getAcademicPaper = async (req, res, next) => {
     const id = parseInt(req.params.id)
     if (!id) return res.sendStatus(400)

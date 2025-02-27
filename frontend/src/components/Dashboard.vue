@@ -142,7 +142,7 @@
             state.academic_papers = papersRes.data.records;
             state.transactions = transRes.data.records;
             state.activities = actRes.data;
-            state.accounts = accRes.data;
+            state.accounts = accRes.data.records;
         } catch (error) {
             console.error('Error fetching data:', error);
         } finally {
