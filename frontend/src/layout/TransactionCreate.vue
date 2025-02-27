@@ -1,6 +1,6 @@
 <script setup>
 import axios from "axios"
-import { reactive, onMounted } from 'vue'
+import { reactive, onMounted, ref } from 'vue'
 import { RouterLink, useRouter } from 'vue-router'
 import { useToast } from 'vue-toastification'
 import VueDatePicker from '@vuepic/vue-datepicker';
@@ -12,6 +12,9 @@ const state = reactive({
     accounts: [],
     items: []
 })
+
+const errorMessage = ref('')
+
 const form = reactive({
     transaction_id: '',
     account_id: '',
@@ -132,7 +135,7 @@ onMounted(() => {
                         <select v-model="form.item_id"
                             class="border border-1 w-full border-gray-200 p-2 outline-none focus:border-green-400 cursor-pointer">
                             <option v-for="item in state.items" :key="item.id" :value="item.item_id">{{ item.item_id
-                            }}</option>
+                                }}</option>
                         </select>
                     </div>
                     <p class="bg-gray-100 text-green-800 p-2 mb-2">Date Information</p>
