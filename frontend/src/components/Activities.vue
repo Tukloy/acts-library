@@ -46,7 +46,7 @@ const getActivities = async () => {
 
         const response = await axios.get('/api/activities', { params });
         const resAccounts = await axios.get('/api/accounts');
-        state.accounts = resAccounts.data;
+        state.accounts = resAccounts.data.records;
         state.activities = response.data.records;
         state.totalRecords = response.data.total;
     } catch (error) {
